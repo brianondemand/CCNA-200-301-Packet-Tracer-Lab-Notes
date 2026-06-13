@@ -1,0 +1,185 @@
+### ETHERCHANNEL LAB
+
+redundant links only one link will be active due to spanning tree protocol and the other will be backup
+
+
+we prefer both to be forwading to increase the bandwith
+
+config layer2 ethC in access and distribution switches then layer3 ethC in distribution switches
+
+
+#### STEP 1
+
+ASW1 # show span
+
+
+(config)int range g0/1-2
+
+channel-group 1 mode active (so ethC can form)
+
+int po1
+
+switchport mode trunk
+
+do show run
+
+do sh eth sum (I standalone because we have not confg DSW1)
+
+
+DSW1 # 
+
+(config)int range g0/3-4
+
+channel-group 1 mode active
+
+int po1
+
+switchport mode trunk //
+
+sw trunk encap dot1q (supports both dot1q & ISL)
+
+switchport mode trunk
+
+do sh eth sum
+
+do sh trunk
+
+
+
+(go back to ASW1 and run show span)
+
+PAgP (desirable & auto modes)
+LACP (active & passive)
+
+
+
+#### STEP 2
+
+ASW2 # show span
+
+(config)int range g0/1-2
+
+channel-group 1 mode desirable (create port chan)
+
+int po1
+
+switchport mode trunk
+
+
+DSW2 # 
+
+(config)int range g0/3-4
+
+channel-group 1 mode desirable
+
+int po1
+
+sw trunk encap dot1q (supports both dot1q & ISL)
+
+switchport mode trunk
+
+do sh eth sum
+
+
+
+
+#### STEP 3
+
+DSW2 #
+
+int range g1/0/1-2
+
+no switchport (create routing ports)
+
+channel-group 2 mode on (static ethC)
+
+int po2
+
+ip add 10.0.0.2 255.255.255.252
+
+
+
+
+DSW1 #
+
+int range g1/0/1-2
+
+no switchport
+
+channel-group 2 mode on 
+
+int po2
+
+ip add 10.0.0.1 255.255.255.252
+
+do sh eth sum (RU - Layer3 & in use)
+
+do ping 10.0.0.2 (.!!!!)
+
+
+#### STEP 4 ROUTES
+
+DSW1 #
+
+do show ip route 
+
+(layer3 switch to form a route table enable IP routing even static routes will not work)
+
+exit
+
+ip routing
+
+do show ip route
+
+ip route 172.16.2.0 255.255.255.0 10.0.0.2
+
+do show ip route
+
+
+
+DSW2 #
+
+exit 
+
+do show ip route
+
+ip route 172.16.1.0 255.255.255.0 10.0.0.1
+
+do show ip route
+
+
+
+#### STEP 5
+
+ASW1 #
+
+do show etherchannel load-balance (check load balancing method)
+
+(All frames from same mac will use same member interface of Eth-channel)
+
+exit
+
+port-channel load-balance src-dst-ip
+
+do show etherchannel load-balance
+
+
+ASW2 #
+
+port-channel load-balance src-dst-ip
+
+do show etherchannel load-balance
+
+
+DSW1 #
+
+do sh eth load
+port-channel load-balance src-dst-ip
+do sh eth load
+
+
+DSW2 #
+
+do sh eth load
+port-channel load-balance src-dst-ip
+do sh eth load

@@ -1,0 +1,359 @@
+
+## OSPF’s METRIC
+
+OSPF’s metric is called cost
+
+It is automatically calculated based on the bandwidth (speed) of the interface.
+
+In OSPF, the reference bandwidth is a value used as the baseline when calculating the cost of an interface.
+
+It is calculated by dividing a reference bandwidth value by the interface’s bandwidth.
+
+The default reference bandwidth is 100 mbps.
+Reference: 100 mbps / Interface: 10 mbps = cost of 10
+Reference: 100 mbps / Interface: 100 mbps = cost of 1
+Reference: 100 mbps / Interface: 1000 mbps = cost of 1??
+Reference: 100 mbps / Interface: 10000 mbps = cost of 1??
+
+All values less than 1 will be converted to 1.
+
+=> show ip ospf int g0/0 - check cost
+
+Therefore FastEthernet, Gigabit Ethernet, 10Gig Ethernet, etc. are equal and all have a cost of 1 by default.
+
+You can and should change the reference bandwidth using this command:
+
+
+=> auto-cost reference-bandwidth ?
+
+- This command is entered in megabits per second (default is 100)
+
+- You should configure a reference bandwidth greater than the faster links in your 
+
+- The OSPF cost to a destination is the total cost of the 'outgoing/exit interface' 
+
+
+
+One more option to change the OSPF cost of an interface is to change the bandwidth of the interface with the bandwidth command.
+
+
+The formula to calculate OSPF cost is reference bandwidth / interface bandwidth.
+
+
+Although the bandwidth matches the interface speed by default, changing the interface bandwidth doesn’t actually change the speed at which the interface operates.
+
+
+The bandwidth is just a value that is used to calculate OSPF cost, EIGRP metric, etc.
+
+
+To change the speed at which the interface operates, use the speed command.
+
+
+It is recommended that you change the reference bandwidth and then use the ip ospf cost command to change the cost of individual interface.
+
+=> bandwidth ?
+
+Because the bandwidth value is used in other calculations, it is not recommended to change this value to alter the interface’s OSPF cost.
+
+Three ways to modify the OSPF cost:
+
+Change the reference bandwidth:
+
+=> R1(config-router)# auto-cost reference-bandwidth megabits-per-second
+
+
+Manual configuration:
+
+=> R1(config-if)# ip ospf cost cost
+
+
+Change the interface bandwidth:
+
+=> R1(config-if)# bandwidth kilobits-per-second
+
+-----------------------------------------------------------------
+
+# OSPF Neighbors
+
+OSPF (Open Shortest Path First) is a routing protocol. Routers use it to talk to each other and figure out the best path for data to travel. To do this, routers form **relationships** with one another — these are called **neighbors**.
+
+Analogy: Think of moving into a new neighborhood. When you arrive, you want to know who your neighbors are because they can help you find your way around. OSPF routers do the same thing.
+
+
+## Neighbor Relationship Process:
+
+1. Discovery
+
+* A router announces: “Hey, I’m here and I’m running OSPF. Anybody else out there?”
+* This is done using special Hello packets.
+
+2. Hello Back
+
+* Another router replies: “Yes, I’m also running OSPF.”
+* At this point, they are considered **neighbors**.
+
+3. Forming Trust
+
+* Routers check if key settings match (area ID, hello/dead timers, authentication, etc.).
+* If everything matches, they move beyond just being neighbors.
+* They exchange routing information and become **adjacent neighbors**.
+
+4. Ongoing Friendship
+
+* Routers keep sending Hello packets at regular intervals.
+* If a router stops hearing Hellos, it assumes the neighbor is down.
+* Any routes learned from that neighbor are then removed.
+
+## Summary:
+
+* An **OSPF neighbor** is another router running OSPF on the same network.
+* Not all neighbors become fully adjacent.
+* **Adjacent neighbors** are the important ones, since they share full routing information.
+
+
+
+Making sure that routers successfully become OSPF neighbors is the main task in configuring and troubleshooting OSPF.
+
+Once routers become neighbors, they automatically do the work of sharing network information, calculating routes, etc.
+
+When OSPF is activated on an interface, the router starts sending OSPF hello messages out of the interface at regular intervals (determined by the hello timer). These are used to introduce the router to potential OSPF neighbors.
+
+The default hello timer is 10 seconds on an Ethernet connection.
+
+Hello messages are multicast to 224.0.0.5 (multicast address for all OSPF routers) 
+
+
+Here’s a clean **Notepad-friendly version** of the OSPF master/slave explanation, Brian:
+
+-----------------------------------------------------------------
+
+# OSPF Master and Slave
+
+When two routers are about to exchange Database Description (DBD) packets in the ExStart state, one becomes the master and the other the slave. This ensures the exchange happens in an orderly way.
+
+How roles are chosen:
+
+* The routers compare their Router IDs.
+* The router with the higher Router ID becomes the Master.
+* The router with the lower Router ID becomes the Slave.
+
+Responsibilities:
+
+* Master:
+
+  * Controls the sequence numbers of the DBD packets.
+  * Decides when the next DBD packet is sent.
+  * Leads the conversation.
+
+* Slave:
+
+  * Responds to the master's DBD packets.
+  * Sends its DBDs only when the master allows.
+  * Follows the master’s lead.
+
+Why it matters:
+
+* Prevents both routers from talking at the same time.
+* Ensures the database description exchange is synchronized and reliable.
+
+In simple terms:
+
+* Master = "I’ll lead the exchange."
+* Slave = "I’ll follow your lead."
+
+---------------------------------------------------------------
+
+
+## OSPF States
+
+
+### 2-Way State
+
+Two routers have exchanged Hello packets and see each other.
+
+They acknowledge each other's presence.
+
+On multi-access networks (like Ethernet), only some routers move past this state (depending on DR/BDR election).
+
+
+
+### ExStart State
+
+Routers that will become fully adjacent decide who will be the "master" in the exchange.
+
+They compare Router IDs; the higher one usually takes the lead.
+
+No map (LSA) data is shared yet.
+
+
+
+#### Loading State
+
+Routers begin exchanging missing parts of the network map.
+
+They send Link-State Requests (LSRs) asking for LSAs they don’t have.
+
+The neighbor replies with Link-State Updates (LSUs).
+
+By the end of this process, both routers have the same information.
+
+
+
+#### Full State
+
+Routers have completely synchronized their link-state databases.
+
+They are now fully adjacent.
+
+From here on, only small updates are sent if something changes in the network.
+
+
+
+#### LSAs (Link-State Advertisements)
+
+LSAs are small pieces of information about the network (like puzzle pieces).
+
+Example: "I am Router A, and I have a link to Router B with a cost of 10."
+
+LSAs are flooded to all routers so everyone can build the same view of the network.
+
+There are different types of LSAs, but all describe parts of the network.
+
+
+
+#### LSDB (Link-State Database)
+
+The LSDB is the complete collection of all LSAs in an OSPF area.
+
+Every router has an identical LSDB once convergence happens.
+
+The router then runs the SPF (Shortest Path First) algorithm on the LSDB to calculate the best routes.
+
+In simple terms: LSAs are the map pieces, the LSDB is the full map, and SPF is the GPS finding the best path.
+
+-----------------------------------------------------------------
+
+
+### LAB 
+
+#### STEP 1
+
+hostnames, ip address, enable interfaces
+
+
+#### STEP 2 Config Loopback Interface
+
+# R1
+
+en
+conf t
+int range g0/0, f1/0, l0
+ip ospf 1 area 0
+do sh ip proto
+
+#### STEP 3 PASSIVE INT
+
+router ospf 1
+passive-interface l0
+
+
+# R2
+
+en
+conf t
+int range g0/0, f1/0, l0
+ip ospf 1 area 0
+
+
+router ospf 1
+passive-interface l0
+
+
+
+# R3
+
+en
+conf t
+int range g0/0, f2/0, l0
+ip ospf 1 area 0
+
+
+router ospf 1
+passive-interface l0
+
+
+
+# R4
+
+en
+conf t
+int range g0/0, f1/0, f2/0, l0
+ip ospf 1 area 0
+
+
+router ospf 1
+passive-interface default
+
+- Message says neighbor is down state OSPF can create neigbours via a passive interface so the neighbor goes down immediately
+
+- lets anable passive int on f1/0 and f2/0 
+
+no passive-int f1/0
+no passive-int f2/0
+do sh ip protocol
+do sh ip ospf neigh
+
+- The Dead Time (also called Dead Interval) is the maximum amount of time a router will wait without hearing a Hello from a neighbor before declaring that neighbor down.
+
+
+#### STEP 4 REFRENCE BANDWITH
+
+# R4.2.3.1
+
+- what is divided by 100 equals 100
+
+R1(config)# router ospf 1
+R1(config-router)# auto-cost reference-bandwidth 10000
+
+do sh ip ospf int
+
+
+
+#### STEP 5 ADVERTISES DEFAULT ROUTE
+
+The default-information originate command is used in OSPF (and other routing protocols) to inject a default route (0.0.0.0/0) into the OSPF domain.
+
+# R 1
+
+default-information originate
+exit
+ip route 0.0.0.0  0.0.0.0  203.0.113.2
+
+
+
+
+#### STEP 6 CHEAK ROUTING TABLE
+
+# R4 check ip routes
+
+do show ip route
+
+- E2 external type 2 means that the internal OSPF metric to reach R1 is ignored (CCNP TOPIC) 
+
+- we can change that by shutingdown R4 F1/0 interface so that OSPF adjacency with R2 goes down
+
+int f1/0
+shutdown
+
+- fastforward
+
+do sh ip route
+
+
+#### STEP 7 SIMULATION MODE
+
+- check layer3 for multicast address used to reach all OSPF routers on the link
+
+- routers send HELLO messages on this ip
+
+- check the inbound PDU details

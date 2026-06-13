@@ -1,0 +1,167 @@
+
+
+# STEP 1
+
+-ip & hostname
+
+# STEP 2
+
+- Add loopback address
+
+
+### R1
+
+show ip int br
+
+conf t
+
+interface ?
+
+interface loopback 0 \?
+
+ip add 1.1.1.1 255.255.255.255
+
+do sh ip int br
+
+
+### R2
+
+interface loopback 0 \?
+
+ip add 2.2.2.2 255.255.255.255
+
+do sh ip int br
+
+
+### R3
+
+interface loopback 0 \?
+
+ip add 3.3.3.3 255.255.255.255
+
+do sh ip int br
+
+### R4
+
+interface loopback 0 \?
+
+ip add 4.4.4.4 255.255.255.255
+
+do sh ip int br
+
+
+
+
+# STEP 4
+
+- config eigrp we must enter the AS and should match two routers to become neighbors
+
+## R4
+
+router eigrp 100
+
+- enable on all interfaces not encouraged on real networks
+
+network  0.0.0.0 255.255.255.255
+
+- disable auto summary
+
+do show ip protocols
+
+no auto-summary
+
+
+
+- config passive interfaces include loopback
+
+- make int G0/0 not connected gigrp neighbors a passive int 
+also do in in loopback interfaces
+
+- router will treat loopback int like any other int and try to send eigrp messages out of it even though its not connected to any device
+
+passive-interface g0/0
+
+passive-interface l0
+
+do show ip protocols
+
+
+
+#### R3
+
+router eigrp 100
+
+net 10.0.13.0   0.0.0.3
+
+net 10.0.34.0   0.0.0.3
+
+- advertise R3 loopback to other routers
+
+net 3.3.3.3   0.0.0.0 - wildcard mask
+
+no auto-summary
+
+passive-interface l0
+
+do show ip protocols
+
+
+
+#### R2
+
+router eigrp 100
+
+net 10.0.12.0   0.0.0.3
+
+net 10.0.24.0   0.0.0.3
+
+- advertise R3 loopback to other routers
+
+net 2.2.2.2   0.0.0.0 - wildcard mask
+
+no auto-summary
+
+passive-interface l0
+
+do show ip protocols
+
+
+
+#### R1
+
+router eigrp 100
+
+net 10.0.12.0   0.0.0.3
+
+net 10.0.13.0   0.0.0.3
+
+- advertise R3 loopback to other routers
+
+net 1.1.1.1   0.0.0.0 - wildcard mask
+
+no auto-summary
+
+passive-interface l0
+
+do show ip protocols
+
+- see neighbors
+
+do sh ip eigrp neighbors
+
+- check if were getting correct routers
+
+do show ip-route eigrp
+
+
+
+- do show ip-route connected
+
+- do show ip-route static
+
+
+
+
+
+
+

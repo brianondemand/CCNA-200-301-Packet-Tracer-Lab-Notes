@@ -1,0 +1,263 @@
+CDP (Cisco Discovery Protocol) and LLDP (Link Layer Discovery Protocol) are Layer 2 neighbor discovery protocols. 
+
+They broadcast device information (such as hostname, IP, hardware platform, and port) to directly connected devices, allowing for dynamic topology mapping and troubleshooting.
+
+
+
+
+## Cisco Discovery Protocol (CDP) 
+
+Cisco Proprietary
+
+Cisco devices only
+
+Enabled by default on Cisco devices
+
+Multicast MAC 01:00:0C:CC:CC:CC
+
+Uses Cisco-specific TLVs (Type-Length-Value)
+
+
+
+##COMMANDS
+
+
+cdp run / no cdp run: Enable or disable CDP globally.
+
+
+cdp enable / no cdp enable: Enable or disable CDP on a specific interface.
+
+
+show cdp: View global CDP status and timers.
+
+
+show cdp neighbors: Displays directly connected Cisco devices, the interface they connect to, platform, and port capabilities.
+
+
+show cdp neighbors detail: Provides deeper, granular info (e.g., neighbor's management IP, OS version, VLAN information).
+
+
+
+
+
+
+## Link Layer Discovery Protocol (LLDP) 
+
+Industry Standard (IEEE 802.1AB)
+
+Multi-vendor (Cisco, Juniper, HP, etc.)
+
+Disabled by default on Cisco devices
+
+Multicast MAC 01:80:C2:00:00:0E
+
+Uses LLDP-MED for VoIP auto-configuration 
+
+
+
+
+
+## COMMANDS
+
+lldp run / no lldp run: Enable or disable LLDP globally.
+
+lldp transmit / lldp receive: Enable LLDP per interface (these are often enabled by default if global lldp run is active).
+
+show lldp: View global LLDP settings and timers.
+
+
+show lldp neighbors: Displays directly connected devices and basic connection details.
+
+
+show lldp neighbors detail: Provides detailed OS version and device capabilities.
+
+
+
+PRACTICAL LAB
+
+
+- will use CDP to map out the network topology then disable CDP and switch the network to LLDP
+
+- packet tracer devices are cisco devices
+
+
+
+
+
+1. Use CDP (and other commands) to identify and label the missing IP addresses
+    and interface IDs of the devices in the network.
+
+2. Disable CDP on the switch interfaces currently connected to PCs.
+
+
+- do both parts 1 and 2
+
+- PC1 can not use CDP we need to add the ip address to this network
+
+
+ipconfig
+
+- add labels for ip for pc1 ,ip for r1, network ip
+
+
+
+## SW1 
+
+
+- go to switch 1 add network ip, disable cdp on interface connected to pc1
+
+- check cdp neighbor tables
+
+
+show cdp neighbors
+
+- add SW1 and R1 labels g0/0 g0/1
+
+- for PC1 we could check the mac address (applies also to many ip) fa0/10
+
+show interface status   -> check connected interfaces
+
+- add lable for PC1
+
+- next disable CDP on Sw1
+
+
+conf t
+
+int f0/10
+
+do show cdp int f0/10
+
+- cdp is enabled on the interface lets disable 
+
+- cdp enable command is used in interface config mode to enable or disable cdp on individual interfaces
+
+no cdp enable
+
+do show cdp int f0/10
+
+
+
+## R1
+
+en
+
+show cdp neighbors
+
+- add labels for the routers
+
+g0/0 for R1  and g0/1 for R3
+
+g0/1 for R1  and g0/0 for R2
+
+
+- lets check R1 ip
+
+show ip int g0/0
+
+- add ip for the interface between R1 and R3 (10.0.13.0/30  g0/0 .1 g0/1  .2)
+
+- confirm interface using this commands
+
+show cdp entry R3
+
+show ip int g0/1
+
+
+`` THE REMAINING CONFIG ARE IN THE CDP SCREENSHOT IMAGE CHECK `
+
+
+
+3. Disable CDP globally on each network device.
+
+4. Enable LLDP globally on each network device, and enable Tx/Rx on the interfaces
+    connected to other network devices.
+   *Tx/Rx are currently disabled on all interfaces
+
+
+SW3
+
+exit
+
+no cdp run
+
+lldp run
+
+int g0/1
+
+lldp transmit 
+
+lldp receive
+
+
+
+
+R3
+
+no cdp run
+
+lldp run
+
+int range g0/0-2
+
+lldp transmit 
+
+lldp receive
+
+
+
+SW2
+
+exit
+
+no cdp run
+
+lldp run
+
+int g0/2
+
+lldp transmit 
+
+lldp receive
+
+
+R2
+
+no cdp run
+
+lldp run
+
+int range g0/0-2
+
+lldp transmit 
+
+lldp receive
+
+
+SW1
+
+exit
+
+no cdp run
+
+lldp run
+
+int g0/1
+
+lldp transmit 
+
+lldp receive
+
+
+R1
+
+no cdp run
+
+lldp run
+
+int range g0/0-2
+
+lldp transmit 
+
+lldp receive
+

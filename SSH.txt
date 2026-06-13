@@ -1,0 +1,198 @@
+### SSH (CCNA Summary Notes)
+
+- **SSH (Secure Shell)** is used for **secure remote access** to network devices like routers and switches.
+
+- It replaces **Telnet** because it encrypts all communication.
+
+
+
+**Key feature:**
+
+- Provides **encrypted login and session data** (secure management access).
+
+**Default port:**
+
+- TCP 22
+
+---
+
+### How it works
+
+Admin PC → SSH connection → Router/Switch
+         (encrypted session)
+
+
+---
+
+### SSH vs Telnet
+
+| Feature     | SSH       | Telnet     |
+| ----------- | --------- | ---------- |
+| Security    | Encrypted | Clear text |
+| Port        | 22        | 23         |
+| Recommended | Yes       | No         |
+
+---
+
+### Basic Cisco Setup (idea-level)
+
+- Set hostname and domain name
+- Generate encryption keys
+- Create local user
+- Enable SSH on VTY lines
+
+Example:
+
+line vty 0 4
+ login local
+ transport input ssh
+
+---
+
+### CCNA Exam Tips
+
+- SSH is **secure remote management**.
+- Uses **TCP port 22**.
+- Requires **username + password** login.
+- Always preferred over Telnet.
+
+---
+
+### One-Line Memory Trick
+
+- SSH = Secure remote access to devices using encryption.
+
+
+PRACTICAL LAB
+
+*SW2 has been newly added to the network, but has not yet been configured.  
+
+
+1.Connect Laptop1 to SW2's console port to perform the following configurations:
+Host name: SW2
+Enable secret: ccna
+Username/PW: jeremy/ccna
+VLAN1 SVI: 192.168.2.253/24
+Default gateway: R2
+
+
+- Select the console cable blue one connect laptop1 RS232 port to SW2 console port
+
+- Go to laptop1 desktop then terminal then ok
+
+
+en
+conf t
+
+hostname SW2
+
+- enable secret should be anbaled to allow user to enter PRIVE Exec mode remotely
+
+
+enable secret ccna
+
+- create a login account
+
+username brian secret ccna
+
+- configure SW2 for remote management by configuring an ip address on its VLAN1 SVI
+
+interface vlan 1
+
+ip add 192.168.2.253 255.255.255.0
+
+no shutdown  -> enable the interface
+
+exit
+
+- config sw2 default gateway SW2 needs to know its default gateway
+
+ip default-gateway 192.168.2.254
+
+- there is only one console line connected to laptop1
+
+line console 0
+
+
+2. Configure the following console line security settings on SW2:
+Authentication: Local user
+Exec timeout: 5 minutes
+
+
+- config a local authentication
+
+login local
+
+exec-timeout 5
+
+- test the authentication
+
+end
+
+exit
+
+- its going to request for a username/password 
+
+
+3. Configure SW2 for remote access via SSH:
+Domain name: jeremysitlab.com
+RSA key size: 2048 bits
+Authentication: Local user
+Exec timeout: 5 minutes
+Protocols: SSH only
++Limit access to PC1 ONLY
+
+ 
+
+- will start by generating RSA keys
+
+SSH RSA keys are asymmetric cryptographic key pairs used to authenticate secure connections between a local client and a remote server without relying on vulnerable passwords. 
+
+An RSA key pair consists of a public key, which you safely upload to remote systems, and a private key, which you must strictly keep secret on your local device.
+
+
+Laptop1
+
+crypto key generate rsa
+
+- will not generate because it needs a domain so will generate one
+
+ip domain name inceptor.co.ke
+
+crypto key generate rsa
+
+2048
+
+- config an ACL to limit access to PC1 only and access to ssh only no telnet
+
+access-list 1 permit host 192.168.1.1
+
+line vty 0 15
+
+- config a local authentication
+
+login local
+
+exec-timeout 5
+
+transport input ssh
+
+access-class 1 in
+
+
+- test the ACLs go to R2 and ping
+
+en
+
+ping 192.168.2.253
+
+- it will be able to ping what about ssh
+
+ssh -l brian 192.168.2.253
+
+- connection should not work
+
+
+
+
+

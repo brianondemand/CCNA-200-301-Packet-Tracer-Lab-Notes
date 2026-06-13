@@ -1,0 +1,187 @@
+**SNMP (Simple Network Management Protocol)**
+
+- Used to **monitor and manage network devices**.
+
+- Allows administrators to check device status remotely.
+
+**Devices Managed:**
+
+- Routers
+- Switches
+- Servers
+- Printers
+- Access Points
+
+---
+
+### Components
+
+**SNMP Manager (NMS)**
+
+- Monitors devices.
+- Example: Network monitoring server.
+
+**SNMP Agent**
+
+- Software running on the device being monitored.
+
+**MIB (Management Information Base)**
+
+- Database of information about the device.
+
+---
+
+### How It Works
+
+
+SNMP Manager ↔ SNMP Agent
+         ↓
+        MIB
+
+
+The manager requests information from the agent, and the agent provides data from the MIB.
+
+---
+
+### SNMP Messages
+
+- GET → Retrieve information
+- SET → Change information
+- TRAP → Alert sent by device to manager
+
+---
+
+### Ports
+
+- UDP 161 → SNMP Queries (GET, SET)
+- UDP 162 → SNMP Traps
+
+---
+
+### SNMP Versions
+
+| Version | Security                            |
+| ------- | ----------------------------------- |
+| SNMPv1  | No encryption                       |
+| SNMPv2c | No encryption, improved performance |
+| SNMPv3  | Authentication and encryption       |
+
+
+**CCNA Tip:** Use **SNMPv3** because it is the most secure.
+
+---
+
+### SNMP Communities
+
+- A **community string** is like a password used by **SNMPv1** and **SNMPv2c**.
+
+- It controls whether an SNMP manager can access information on a device.
+- **Read-Only (RO):** Can view information but cannot make changes.
+- **Read-Write (RW):** Can view and modify information.
+
+
+* Common examples:
+
+  * `public` = Read-Only
+  * `private` = Read-Write
+
+- Community strings are **not encrypted**, which is why **SNMPv3** is preferred.
+
+**Remember:**
+
+**Community String = SNMP Password**.
+
+
+
+### Exam Reminder
+
+* SNMP monitors and manages network devices.
+* Uses **UDP 161** and **UDP 162**.
+* Components: **Manager, Agent, MIB**.
+* **Trap** = Device sends an alert to the manager.
+
+### One-Line Memory Trick
+
+**SNMP lets network administrators monitor devices and receive alerts when problems occur.**
+
+
+PRACTICAL LAB
+
+
+## SNMP functionality is VERY limited in Packet Tracer! ##
+
+1. Configure the following SNMP communities on R1:
+
+read-only: Cisco1
+read/write: Cisco2
+
+
+#R1
+
+en
+conf t
+
+snmp-server community Cisco1 ro
+
+snmp-server community Cisco2 rw
+
+
+
+2. Use SNMP 'Get' messages via the MIB browser on PC1 to check the following:
+-How long has R1 been running? (system uptime)
+-What is the currently configured hostname on R1?
+-How many interfaces does R1 have?
+-What are those interfaces?
+
++check what other information you can learn about R1 via SNMP Get messages.
+
+
+
+- got to PC1 click on MIB Browser and enter R1 ip click on advance and add the two communities cisco1 for read and cisco2 for write
+
+- we want to view different variables and OIDs in the MIB 
+
+-> MIB Tree/router_sid/iso/org/dod/internet/mgmt/ mib-2/system/sysUpTime
+
+
+
+- select get and then click go to get the OID value
+
+- go to sysName  -> click get to get the hostname
+
+
+
+- check ifo about R1 interfaces from .interfaces/ifnumber 
+
+-> click get see the number of interfaces
+
+
+- expand iftable/ifentry/ifdescription click get  -> description  of each interface
+
+
+- click on iftype then go   -> interface type
+
+
+- click on ifadmin then go   -> check interface status
+
+
+
+ 
+3. Use an SNMP 'Set' message from PC1 to change the hostname of R1.
+
+- do a get request for the sysname  then change the operation to set then select the datatype, select octat string, change the value to what you want R22 then click ok then go to send the set
+
+
+- go back to R1 and check running config
+
+
+show running | include host
+
+
+
+
+
+
+
+
+

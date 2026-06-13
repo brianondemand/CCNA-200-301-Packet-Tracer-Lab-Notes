@@ -1,0 +1,270 @@
+## 1. Why IPv6?
+
+- **32-bit address → 128-bit address** (2^128 addresses)
+- No NAT needed (global reachability)
+- No broadcast (uses multicast and anycast)
+- Built-in IPsec (optional but available)
+- Autoconfiguration (SLAAC)
+
+SLAAC (Stateless Address Autoconfiguration) is an IPv6 mechanism that lets devices automatically generate their own unique IP addresses and default gateways. It requires no manual configuration or centralized DHCP server.
+
+---
+
+## 2. Address Format
+
+- **128 bits** → 8 hextets of 16 bits each, written in **hexadecimal**
+- Example: `2001:0db8:0000:0000:0000:ff00:0042:8329`
+
+### Abbreviation Rules (2 steps)
+
+1. **Leading zeros** in each hextet can be dropped  
+   `0db8` → `db8`, `0000` → `0`
+2. **Double colon (::)** can replace **one consecutive block** of all-zero hextets (only once per address)  
+   `2001:0db8:0000:0000:0000:ff00:0042:8329` → `2001:db8::ff00:42:8329`
+
+---
+
+## 3. Address Types
+
+### Unicast (one-to-one)
+
+| Type | Prefix | Description |
+|------|--------|-------------|
+| **Global Unicast (GUA)** | `2000::/3` (2000:: to 3fff:...) | Publicly routable on the Internet |
+| **Unique Local (ULA)** | `FD00::/7` (often fc00::/7) | Private, like IPv4 private addresses (but not NAT by default) |
+| **Link‑Local (LLA)** | `FE80::/10` (first 10 bits fe80, but usually fe80::/10, auto-generated) | Only on the same link, not routed. Every IPv6 interface has one. Used for NDP, OSPFv3, etc. |
+
+### Multicast (one-to-many)
+
+- Starts with `FF00::/8`
+- Well-known:  
+  - `FF02::1` → all nodes on local link  
+  - `FF02::2` → all routers on local link  
+  - `FF02::5` → OSPFv3 routers  
+  - `FF02::A` → EIGRP routers
+
+### Anycast (one-to-nearest)
+
+- Same address assigned to multiple devices; router forwards to closest.
+
+### Important: No broadcast in IPv6.
+
+---
+
+## 4. Interface Identifiers (Host part)
+
+- **EUI-64** (for SLAAC): derive 64-bit interface ID from 48-bit MAC  
+  - Split MAC: `cafe.cafe.cafe` → `ca fe ca fe ca fe`
+  - Insert `FFFE` in middle: `ca fe ca FF FE fe ca fe`
+  - Flip the 7th bit (Universal/Local bit):  
+    `ca` (11001010) → toggle bit 7 → `11001000` = `c8` → `c8 fe ca ff fe fe ca fe`
+- **Random** (privacy extensions) – commonly used by modern OS.
+
+---
+
+## 5. Prefix Notation (CIDR)
+
+- Same as IPv4: `2001:db8::/64`
+- **Common prefix lengths:**
+  - `/64` – standard for a single subnet (SLAAC requires /64)
+  - `/48` – typical allocation for a site
+  - `/128` – a single host address
+
+---
+
+## 6. Address Autoconfiguration
+
+| Method | Description |
+|--------|-------------|
+| **SLAAC** (Stateless) | Router sends RA (Router Advertisement) with prefix; host combines with EUI‑64 or random to form full /64 address. No DHCP. |
+| **SLAAC + DHCPv6 (stateless)** | Host gets prefix from RA, but gets DNS and other info from DHCPv6. |
+| **DHCPv6 (stateful)** | Like IPv4 DHCP. Router RA sets “managed” flag. Host gets address + other info from DHCPv6 server. |
+
+### Router Advertisement (RA) flags:
+- **A flag** (Autonomous) – use SLAAC for prefix
+- **O flag** (Other config) – use DHCPv6 for DNS etc.
+- **M flag** (Managed) – use stateful DHCPv6 for address.
+
+---
+
+## 7. Neighbor Discovery Protocol (NDP) – replaces ARP
+
+| IPv4 function | IPv6 NDP equivalent |
+|---------------|---------------------|
+| ARP | **Neighbor Solicitation (NS)** + **Neighbor Advertisement (NA)** |
+| Default gateway discovery | **Router Solicitation (RS)** + **Router Advertisement (RA)** |
+| Redirect | **Redirect** (same name) |
+
+- NDP uses **ICMPv6** (types 133–137)
+- NS/NA are multicast – no broadcast.
+
+---
+
+## 8. Essential ICMPv6 Types (CCNA)
+
+| Type | Name | Purpose |
+|------|------|---------|
+| 128 | Echo Request | ping |
+| 129 | Echo Reply | pong |
+| 133 | Router Solicitation (RS) | Host asks for RA |
+| 134 | Router Advertisement (RA) | Router sends prefix/flag info |
+| 135 | Neighbor Solicitation (NS) | “Who has this IPv6?” (like ARP request) |
+| 136 | Neighbor Advertisement (NA) | Response to NS |
+| 137 | Redirect | Better next-hop exists |
+
+---
+
+## 9. Routing with IPv6
+
+### Static routes
+```
+ipv6 route 2001:db8:1::/64 2001:db8:12::2
+ipv6 route ::/0 2001:db8:12::1   (default route)
+```
+
+### OSPFv3
+- Uses **OSPFv3** (RFC 5340) – similar to OSPFv2 but runs over IPv6
+- Enable with:  
+  `ipv6 router ospf 1`  
+  `router-id 1.1.1.1`  
+  Then on interface: `ipv6 ospf 1 area 0`
+
+### EIGRP for IPv6
+- `ipv6 router eigrp 100`  
+  `no shutdown`  
+  On interface: `ipv6 eigrp 100`
+
+---
+
+## 10. Transition Mechanisms (CCNA level)
+
+| Mechanism | Description |
+|-----------|-------------|
+| **Dual stack** | Run IPv4 and IPv6 simultaneously on the same device (recommended) |
+| **Tunneling** | Encapsulate IPv6 inside IPv4 (e.g., 6to4, manual tunnel) – less common now |
+| **NAT64 / DNS64** | Translate between IPv6 and IPv4 (for connecting to IPv4-only servers) |
+
+---
+
+## 11. Key differences from IPv4 (Exam quick list)
+
+| IPv4 | IPv6 |
+|------|------|
+| 32 bits | 128 bits |
+| Dotted decimal | Hexadecimal, colon-separated |
+| ARP | NDP (ICMPv6) |
+| Broadcast | Multicast (no broadcast) |
+| DHCP (optional) | SLAAC + DHCPv6 |
+| NAT common | NAT not needed |
+| Router uses ARP for next-hop MAC | Router uses NDP |
+| Header checksum | No header checksum |
+| Fragmentation by routers | Fragmentation only by source host (PMTU discovery) |
+
+---
+
+## 12. Common CCNA commands
+
+| Command | Purpose |
+|---------|---------|
+| `show ipv6 interface brief` | See IPv6 addresses per interface |
+| `show ipv6 route` | IPv6 routing table |
+| `show ipv6 neighbors` | IPv6 neighbor cache (like ARP table) |
+| `ping 2001:db8::1` | Test connectivity |
+| `tracert 2001:db8::1` | Trace route |
+
+---
+
+## 13. Special addresses to know
+
+| Address | Purpose |
+|---------|---------|
+| `::1` | Loopback (same as 127.0.0.1) |
+| `::` | Unspecified address (default route source, DHCP) |
+| `FE80::/10` | Link-local (auto-generated, starts `fe80::`) |
+| `FF02::1` | All IPv6 nodes (link-local multicast) |
+| `FF02::2` | All IPv6 routers |
+| `2000::/3` | Global unicast range |
+
+---
+
+## LAB SETUP
+
+R1
+
+Dual stack solution where you add ipv6 configurations on top of ipv4 and transition from ipv4 to ipv6 and slowly transition to using ipv6
+
+When ipv4 is configured the router will foward ipv4 packets without having a to anable ipv4 routing, ipv6 routing is not enabled by default.
+
+STEP 1
+
+- enable ipv6 routing in R1 (config at the end)
+
+STEP 2
+
+- config the appropriate ipv6 on R1
+
+en
+
+conf t
+
+int g0/0
+ipv6 add 2001:DB8:0:1::1/64
+
+int g0/1
+ipv6 add 2001:DB8:0:2::1/64
+
+int g0/2
+ipv6 add 2001:DB8:0:3::1/64
+
+
+
+STEP3
+
+do show ipv6 int br
+
+STEP 4
+
+ - config ipv6 on pcs start with the gateway
+
+2001:DB8:0:1::1 - Gateway
+
+PC1
+
+2001:DB8:0:1::1 - Gateway
+
+2001:DB8:0:1::2 /64 
+
+PC2
+
+2001:DB8:0:2::1 - Gateway
+
+2001:DB8:0:2::2 /64 
+
+
+PC3
+
+2001:DB8:0:3::1 - Gateway
+
+2001:DB8:0:3::2 /64 
+
+
+
+
+STEP 5
+
+ping 2001:DB8:0:1::1 - g0/0 interface
+
+ping 2001:DB8:0:2::1 - g0/1 interface
+
+ping 2001:DB8:0:2::2 - pc2
+
+
+- pcs can not ping each other we did not enable ipv6 routing
+
+ipv6 unicast-routing
+
+
+
+
+
+

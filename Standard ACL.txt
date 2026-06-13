@@ -1,0 +1,201 @@
+A Standard ACL is a sequential list of permit or deny statements that filters network traffic based only on the source IP address. It does not look at destination IP, port numbers, protocol type (TCP/UDP), or any other field.
+
+
+Standard ACLs are identified by numbers in these ranges:
+
+Range	Type
+1-99	Standard IP ACL (original range)
+1300-1999	Standard IP ACL (extended range)
+
+
+CCNA exam focus: You will most commonly see 1-99.
+
+
+## Basic Command Structure
+
+`access-list {ACL-number} {permit | deny} {source-address} {wildcard-mask}`
+
+
+## Parameters Explained
+
+Parameter	Description
+
+ACL-number	1-99 or 1300-1999
+permit/deny	Action to take when matched
+source-address	Source IP address of the packet
+wildcard-mask	Which bits of the source address to check (0 = check, 1 = ignore)
+
+
+
+
+STEP 1
+
+R1
+
+router ospf 1
+
+net 172.16.0.0  0.0.255.255 area 0
+
+net 203.0.113.0  0.0.0.3  area 0
+
+do show ip osfp interface
+
+
+
+R2 
+
+router ospf 1
+
+net 192.168.0.0  0.0.255.255 area 0
+
+net 203.0.113.0  0.0.0.3  area 0
+
+do show ip osfp interface
+
+do show ip ospf neigh
+
+do show ip route   --- run it in R1 also
+
+
+
+STEP 2
+
+
+
+### -Only PC1 and PC3 can access 192.168.1.0/24
+
+ip access-list standard TO_192.168.1.0/24
+
+permit 172.16.1.1   - allowing PC1
+
+permit 172.16.2.1   - allowing PC3
+
+deny any   - Deny other traffics
+
+
+- The ACL has been applied but its not working, will apply it to an interface, to apply it to an interface we use access-group command 
+
+int g0/0
+
+ip access-group TO_192.168.1.0/24 out
+
+
+- Try pinging SRV1 from PC1  / PC1 is able to reach server1
+
+- Try pinging SRV1 from PC2   / pc2 has been blocked from accessing server1
+
+
+
+
+
+### -Hosts in 172.16.2.0/24 can't access 192.168.2.0/24
+
+
+ip access-list standard TO_192.168.2.0/24
+
+deny 172.16.2.0  0.0.0.255
+
+permit any
+
+int g0/1
+
+ip access-group TO_192.168.2.0/24
+
+
+- PC1 should be able to reach Server2
+
+- PC3 should fail
+
+
+do show access-lists
+
+
+- we can see packets match every entry of our ACL
+
+
+
+
+### -172.16.1.0/24 can't access 172.16.2.0/24
+
+
+R1
+
+access-list 1 deny 172.16.1.0   0.0.0.255
+
+access-list 1 permit any
+
+
+access-list 2 deny 172.16.2.0   0.0.0.255
+
+access-list 2 permit any
+
+
+do show access-lists
+
+int g0/0
+
+ip access-group 1 out
+
+
+int g0/1
+
+ip access-group 2 out
+
+
+- that will restrict network from 172.16.1.0/24 can't access 172.16.2.0/24
+
+- test by pinging PC1 from PC3
+
+
+
+ping -t 172.16.2.1
+
+
+
+- tells pc1 to ping forever, pings between pc1 and pc 3 are blocked
+
+
+
+do show access-lists
+
+
+
+
+
+
+### -172.16.2.0/24 can't access 172.16.1.0/24
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

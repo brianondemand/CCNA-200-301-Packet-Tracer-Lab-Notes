@@ -1,0 +1,190 @@
+**DHCP (Dynamic Host Configuration Protocol)**
+
+- Automatically assigns IP addresses to devices.
+- Reduces manual IP configuration.
+
+**Provides:**
+
+- IP Address
+- Subnet Mask
+- Default Gateway
+- DNS Server
+
+**DHCP Process (DORA):**
+
+D - Discover
+O - Offer
+R - Request
+A - Acknowledge
+
+
+**How it works:**
+
+Client → DHCP Discover
+Server → DHCP Offer
+Client → DHCP Request
+Server → DHCP Acknowledge
+
+
+**Ports:**
+
+- UDP 67 = DHCP Server
+- UDP 68 = DHCP Client
+
+**Benefits:**
+
+- Automatic IP assignment
+- Prevents IP conflicts
+- Simplifies network administration
+
+**Cisco Router DHCP Pool Example:**
+
+
+ip dhcp pool LAN
+ network 192.168.1.0 255.255.255.0
+ default-router 192.168.1.1
+ dns-server 8.8.8.8
+
+
+**Exam Reminder:**
+
+- DHCP = Assigns IP addresses automatically.
+- Uses the **DORA** process.
+- Uses **UDP ports 67 and 68**.
+
+### One-Line Memory Trick
+
+**DHCP gives devices their network settings automatically.**
+
+PRACTICAL LAB
+
+1. Configure the following DHCP pools on R2:
+
+POOL1: 192.168.1.0/24 (reserve .1 to .10)
+     DNS 8.8.8.8
+     Domain: jeremysitlab.com
+     Default Gateway: R1
+POOL2: 192.168.2.0/24 (reserve .1 to .10)
+     DNS 8.8.8.8
+     Domain: jeremysitlab.com
+     Default Gateway: R2
+POOL3: 203.0.113.0/30 (reserve .1)
+
+
+R2
+
+en
+conf t
+
+- reserve the first 10 host addresses
+
+- the ip dhcp excluded-address command is done from global config mode not dhcp config mode
+
+
+ip dhcp excluded-address  192.168.1.1  192.168.1.10   -> POOL 1
+
+ip dhcp excluded-address  192.168.2.1  192.168.2.10   -> POOL 2
+
+ip dhcp excluded-address  203.0.113.1
+
+
+- config the first pool
+
+ip dhcp pool POOL1
+
+network 192.168.1.0  255.255.255.0
+
+dns-server 8.8.8.8
+
+domain-name inceptor.co.ke
+
+default-router 192.168.1.1
+
+
+- config the second pool
+
+ip dhcp pool POOL2
+
+network 192.168.2.0  255.255.255.0
+
+dns-server 8.8.8.8
+
+domain-name inceptor.co.ke
+
+default-router 192.168.2.1
+
+
+- config the third pool
+
+ip dhcp pool POOL3
+
+network 203.0.113.0  255.255.255.252
+
+
+do show run | section dhcp
+
+- R2 is now configured as a dhcp server
+
+- go to pc2 and see if it can get an ip address
+
+ipconfig /renew
+
+ipconfig /all
+
+
+
+
+2. Configure R1's G0/0 interface as a DHCP client.
+    What IP address did it configure?
+
+
+#R1
+
+en
+conf t
+
+int g0/0
+
+- to make R1 DHCP client on this interface
+
+ip address dhcp
+
+no shutdown
+
+
+
+3. Configure R1 as a DHCP relay agent for the 192.168.1.0/24 subnet.
+ 
+
+- config on the interface connected to the DHCP clients G0/1 interface
+
+
+ip helper-address 203.0.113.1
+
+
+
+4. Use the CLI of PC1 and PC2 to make them request an IP address 
+    from their DHCP server.
+
+
+- go to the cmd of PC1 and try to request for a new ip address try multiple times again arp is slower in packet tracer
+
+
+ipconfig /renew
+
+ipconfig /all
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

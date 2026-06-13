@@ -1,0 +1,164 @@
+Extended Access Control Lists (ACLs) are network security filters that evaluate and restrict traffic based on multiple granular criteria, including source IP address, destination IP address, specific protocols, and port numbers. 
+
+They provide highly targeted network security that prevents unwanted traffic from crossing your infrastructure.
+
+
+## Core Differences
+
+Unlike Standard ACLs (which only filter based on source IP), Extended ACLs perform deep packet inspection using the following attributes:
+
+
+Source IP: Who the traffic is coming from.
+
+Destination IP: Where the traffic is trying to go.
+
+Protocol: Layer 3 and 4 protocols like TCP, UDP, ICMP, or IP.
+
+Port Numbers: Specific application ports (e.g., denying Telnet traffic on port 23, but allowing HTTP traffic on port 80)
+
+## Identification and PlacementNumbered Lists: 
+
+
+Ranging from 100–199 and the extended range 2000–2699.
+
+
+Named Lists: Allows you to create rules by name and delete individual statements without having to recreate the entire list.
+
+
+Best Practice Location: Always place Extended ACLs as close to the source of the traffic as possible. 
+
+
+This helps conserve network bandwidth by dropping unauthorized packets early in the network path.
+
+
+
+## Standard Configuration Example
+
+1. Initiate named ACL: ip access-list extended [ACL-Name]
+
+2. Define rule: [permit | deny] [protocol] [source] [source-wildcard] [destination] [destination-wildcard] [operator port]
+
+3. Apply to interface: Navigate to the specific interface and use ip access-group [ACL-Name] [in | out]
+
+
+
+
+
+Inbound and outbound ACLs (Access Control Lists) define the direction that network traffic is filtered as it crosses an interface. 
+
+- Inbound ACLs filter packets before the device routes them, processing them immediately upon arrival. 
+
+
+- Outbound ACLs filter packets after the device routes them, examining them just before they exit the interface. 
+
+
+
+
+LAB PRACTICAL
+
+1. Configure extended ACLS to fulfill the following network policies:
+
+
+
+-Lets test to see how DNS works go to PC1 and ping PC2 to learn PC2 ip PC1 will contact Server1 to learn its IP
+
+
+ping pc2
+
+
+
+- DNS servers contains a list of names and ip addresses 
+
+- DNS uses TCP and UDP but mostly UDP. Runs on port 53
+
+
+
+
+
+
+-Hosts in 172.16.2.0/24 can't communicate with PC1.
+
+-Hosts in 172.16.1.0/24 can't access the DNS service on SRV1.
+
+R1
+
+en
+conf t
+
+ip access-list extended 100
+
+deny udp 172.16.1.0  0.0.0.255  host 192.168.1.100 eq 53
+
+deny tcp 172.16.1.0  0.0.0.255  host 192.168.1.100 eq 53
+
+permit ip any any
+
+int g0/0
+
+ip access-group 100 in
+
+
+- try to ping srv2 the fast foward 
+
+ping srv2
+
+- PC1 will not be able to learn server 2 ip because it does not have access to server 1 DNS
+
+
+
+-Hosts in 172.16.2.0/24 can't access the HTTP or HTTPS services on SRV2.
+
+
+- combine both part 1 and 3 into one ACL since the both have the same source
+
+
+
+ip access-list extended 101
+
+deny ip 172.16.2.0.0   0.0.0.255 host 172.16.1.1
+
+
+
+- lets prevent the subnet from using http and https services on server2
+
+- go to pc3 open web browser
+
+http://cisco.com
+
+deny tcp 172.16.2.0  0.0.0.255 host 192.168.2.100 eq 80
+
+deny tcp 172.16.2.0  0.0.0.255 host 192.168.2.100 eq 433
+
+permit ip any any
+
+int g0/1
+
+ip access-group 101 in
+
+
+- go to pc3 open web browser close the browser and reopen again
+
+- lets test the first requirement / pc3 cmd and try ping pc1
+
+ping pc1
+
+- a ping to pc2 should work
+
+ping pc2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

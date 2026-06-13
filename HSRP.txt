@@ -1,0 +1,266 @@
+===============================
+FIRST HOP REDUNDANCY PROTOCOLS
+===============================
+
+What are FHRPs?
+---------------
+FHRPs (First Hop Redundancy Protocols) ensure **default gateway availability** for hosts on a LAN. If the default gateway (usually a router) fails, another device can take over — minimizing downtime.
+
+Why use FHRPs?
+--------------
+- Routers fail. FHRPs provide **gateway failover**.
+- Without FHRP, a single point of failure can knock users offline.
+- Critical for **high availability (HA)** in enterprise networks.
+
+Main FHRP Protocols
+-------------------
+1. **HSRP (Hot Standby Router Protocol)** – Cisco proprietary
+2. **VRRP (Virtual Router Redundancy Protocol)** – Open standard (RFC 5798)
+3. **GLBP (Gateway Load Balancing Protocol)** – Cisco proprietary
+
+------------------------------------
+1. HSRP – Hot Standby Router Protocol
+------------------------------------
+
+Hot Standby Router Protocol or HSRP is a Cisco-proprietary router redundancy protocol that enables a group of routers to cooperate to have a redundant network. All the routers within the group will have the same virtual IP address and virtual mac address.
+
+The Two router states of Hot Standby Router Protocol (HSRP) are:
+
+- Active Router – The router that actively (default) sends and receives a packet to the host within the organization is the default gateway router. From the group of routers, only one will be selected as an active router.
+
+- Standby Router – The router that, in case the current active router will go offline, among the standby router will be chosen as the active router.
+
+
+- Vendor: Cisco only
+- Active & Standby routers
+- Virtual IP (VIP) used by clients
+- Only one router forwards traffic at a time
+
+States:
+- Initial → Learn → Listen → Speak → Standby → Active
+
+Key Facts:
+- Hello timer: 3 sec (default)
+- Hold timer: 10 sec
+- Priority: 0–255 (higher = preferred, default = 100)
+- Preemption: Off by default
+
+--------------------------------------
+2. VRRP – Virtual Router Redundancy Protocol
+--------------------------------------
+
+VRRP stands for Virtual Router Redundancy Protocol. It is a vendor-neutral redundancy protocol that groups two or more routers to produce a new single virtual router. It allows for redundancy by assigning the same virtual gateway IP address and MAC address to all physical routers in the VRRP group.
+
+Master Router
+- It is currently the organization’s default gateway for all hosts. It is constantly sending and receiving packets to and from the hosts.
+
+Backup Router
+- During a failover or when the master router goes offline, the backup router will take over as the master router.
+
+
+- Vendor: Open standard
+- Master & Backup routers
+- Virtual IP shared
+- Only Master forwards traffic
+
+Key Facts:
+- Priority: 1–254 (default = 100, 255 = Master if owning VIP)
+- Hello interval: 1 sec (default)
+- Master down interval: 3x advert interval + skew time
+- Preemption: Always enabled
+
+Differences from HSRP:
+- Faster failover
+- Uses multicast 224.0.0.18 (HSRP uses 224.0.0.2)
+
+-------------------------------------
+3. GLBP – Gateway Load Balancing Protocol
+-------------------------------------
+
+GLBP stands for Gateway Load Balancing Protocol. It prevents a single point of failure, like HSRP and VRRP. Still, it also allows load-sharing among a group of redundant routers so that all the routers will take an active part in packet forwarding, and no uplink will be unused. This is the additional feature of GLBP protocol with redundancy.
+
+
+- Cisco only
+- **Load balances traffic** across multiple gateways
+- All routers forward traffic
+- One AVG (Active Virtual Gateway) + multiple AVFs (Active Virtual Forwarders)
+
+Key Facts:
+- Uses multiple virtual MACs
+- Load balancing modes: round-robin (default), weighted, host-dependent
+- GLBP group members share the virtual IP, but use different MACs
+
+Timers:
+- Hello: 3 sec
+- Hold: 10 sec
+
+Comparison Table
+----------------
+| Feature          | HSRP         | VRRP         | GLBP         |
+|------------------|--------------|--------------|--------------|
+| Standard         | Cisco only   | Open (RFC)   | Cisco only   |
+| Load Balancing   | No           | No           | Yes          |
+| Active Router    | 1            | 1            | Multiple     |
+| Preemption       | Optional     | Enabled      | Enabled      |
+| VIP Ownership    | Optional     | Usually      | Required     |
+| Default Hello    | 3s           | 1s           | 3s           |
+
+FHRP Best Practices
+-------------------
+- Enable **preemption** to allow higher-priority routers to take over.
+- Tune hello and hold timers for faster convergence.
+- Use authentication where supported.
+- Monitor with SNMP or syslogs.
+
+Security Concerns
+-----------------
+- Rogue devices can hijack the virtual IP.
+- Use FHRP authentication (MD5 where supported).
+- Implement control plane policing (CoPP).
+- Consider First Hop Security features (DHCP Snooping, Dynamic ARP Inspection, etc.)
+
+Real-World Use
+--------------
+- Use HSRP/GLBP on Cisco-heavy networks.
+- Use VRRP for mixed vendor environments.
+- GLBP is solid for load balancing at the default gateway level.
+
+Summary
+-------
+FHRPs = no single point of gateway failure.
+
+- HSRP: Basic redundancy
+- VRRP: Open, fast, simple
+- GLBP: Load balancing + redundancy
+
+These protocols keep your LAN resilient and your endpoints online even when gear fails.
+
+========================
+
+
+PRACTICAL
+
+STEP 1
+
+ping 8.8.8.8
+
+ipconfig to check the default gateway
+
+
+
+STEP 2. Configure HSRPv2
+
+- preemption is a feature used in gateway redundancy protocols (like HSRP) that forces a router to take over as the active default gateway if it has a higher priority than the router currently doing the job
+
+- make R1 the active router by increasing the priopity and lowering R2 and also enable preemption
+
+- HSRP is configured directly to the interface
+
+R1
+
+int g0/0
+
+standby version 2
+
+- config a virtual ip, standby command need a group number so we match with the vlan of that network, will go with vlan 1 since we dont have any vlan.
+
+- virtual IP (VIP) is a single shared IP address configured as the default gateway on end devices
+
+standby 1 ip 10.0.1.254
+
+- Increase priopity value (default 100)
+
+standby 1 priority 200
+
+- enable preemption
+
+standby 1 preempt
+
+
+
+R2
+
+int g0/0
+
+standby 1 priority 50
+
+standby 1 ip 10.0.1.254
+
+- foward 30 sec, i will get duplicate message since R1 and R2 think there acrive routers.
+
+- this is because the version mismatch and there not able to negotiate, will config version 2 on R2
+
+
+standby version 2
+
+- foward again, the message will desapeare
+
+show standby
+
+
+
+STEP 3
+
+PING 8.8.8.8
+
+arp -a
+
+
+- the mac address belong to HSPR version 2 virtual interface
+
+tracert 8.8.8.8
+
+- we see the ip for R1 and not the virtual ip address, R1 will reply to all traceroute, we can use this command to check for correct gateway ip
+
+
+STEP 4
+
+- save config and shutdown R1 foward 30 sec
+
+- go to the pcs and try to ping PC1
+
+ping 8.8.8.8
+
+tracert 8.8.8.8
+
+- the R2 gareway interface ip is now the default gateway
+
+
+STEP 5
+
+- power on R1 foward 30 sec
+
+- go to the pcs and try to ping PC1
+
+ping 8.8.8.8
+
+tracert 8.8.8.8
+
+- the R1 gareway interface ip is now the default gateway
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

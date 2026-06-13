@@ -1,0 +1,276 @@
+Network Time Protocol, a fundamental internet standard used to synchronize the clocks of computers and devices over packet-switched, variable-latency networks to within a few milliseconds of Coordinated Universal Time (UTC).
+
+
+
+The system clock has several key characteristics:
+
+    Volatile Nature: The system clock retains the current time only while the device is powered on. Once the router reboots, it resets.
+
+    Reset Behavior: If the router does not have a backup hardware clock, it may default to a reference time (00:00 on January 1, 1970) after rebooting.
+
+    Drift: The system clock experiences "clock drift," where the device gradually loses time over a long period. This happens because the software clock depends on the CPU's crystal oscillator, which has minor frequency variations.
+
+
+NTP constantly measures the time it takes for data to travel back and forth (latency) between your device and a time server, automatically adjusting your clock to account for these delays.
+
+NTP uses a hierarchical system of time sources. At the top of the structure are highly accurate time sources – typically a GPS or atomic clock, providing Coordinated Universal Time (UTC). 
+
+In NTP (Network Time Protocol), stratum is simply a way of showing how far a device is from the original time source.
+
+
+NTP Stratum Levels
+
+
+Stratum 0  → Reference clock
+             (Atomic clock, GPS clock, etc.)
+
+Stratum 1  → NTP server connected directly
+             to a Stratum 0 device
+
+Stratum 2  → Gets time from a Stratum 1 server
+
+Stratum 3  → Gets time from a Stratum 2 server
+
+Stratum 4  → Gets time from a Stratum 3 server
+
+
+
+
+Atomic Clock (Stratum 0)
+          │
+          ▼
+NTP Server A (Stratum 1)
+          │
+          ▼
+Router B (Stratum 2)
+          │
+          ▼
+Switch C (Stratum 3)
+
+
+
+
+
+NTP Server
+
+NTP uses a client-server architecture; one host is configured as the NTP server and all other hosts on the network are configured as NTP clients.
+
+Simple Network Time Protocol (SNTP)
+
+Simple Network Time Protocol (SNTP) is a simpler NTP version commonly used by small networks. SNTP is a client-only architecture, so it can only receive information from the NTP time servers and cannot provide time for other devices.
+
+
+Why does a network device need a synchronized clock?
+
+1. Logging and Troubleshooting
+
+2. Security (Authentication and Encryption)
+
+3. Compliance: Many industries have regulatory requirements (such as PCI DSS, HIPAA, or GDPR) that mandate accurate timekeeping for logging and auditing.
+
+4. Time-based Access Lists
+
+5. Network Automation
+
+
+
+PRACTICAL
+
+
+
+
+1. Configure the software clock on R1, R2, and R3 to 12:00:00 Dec 30 2020 (UTC).
+
+2. Configure the time zone of R1, R2, and R3 to match your own.
+
+## R1
+
+en
+
+clock set 12:00:00 Jun 15 2026
+
+clock detail
+
+- configure timezone
+
+conf t
+
+clock timezone eat 3
+
+do show clock detail
+
+
+
+## R2
+
+en
+
+clock set 12:00:00 Jun 15 2026
+
+clock detail
+
+- configure timezone
+
+conf t
+
+clock timezone eat 3
+
+do show clock detail
+
+
+## R3
+
+en
+
+clock set 12:00:00 Jun 15 2026
+
+clock detail
+
+- configure timezone
+
+conf t
+
+clock timezone eat 3
+
+do show clock detail
+
+
+- Clocks in R1,2,3 do not match but that will be fixed when we enable NTP latter
+
+
+
+3. Configure R1 to synchronize to NTP server 1.1.1.1 over the Internet.
+    What stratum is 1.1.1.1?  What stratum is R1?
+
+
+
+#R1 
+
+ntp server 1.1.1.1
+
+show ntp associations
+
+- fast forward the simulation
+
+en
+
+show ntp associations
+
+
+- 1.1.1.1   is stratum 1 so R1 is NTP client and also a server
+
+show ntp status
+
+- check R1 stratum 
+
+show clock detail
+
+
+
+
+4. Configure R1 as a stratum 8 NTP master.
+    Synchronize R2 and R3 to R1 with authentication.
+   *the 'ntp source' command is not available in Packet Tracer, so just use 
+    the physical interface IP addresses of R1.
+
+
+5. Configure NTP to update the hardware calendars of R1, R2, and R3.
+  *you can't view the calendar in Packet Tracer
+
+
+- R1 is already acting as an NTP server because it is syncing to SRV1, so R2 and R3 should be able to use R1 ans an NTP server.
+
+- If R1 stops sync to 1.1.1.1 , we can config it as an NTP Master that can server as a backup clock for R2 and R3
+
+
+#R1 
+
+conf t
+
+ntp master
+
+
+- config R2 1nd R3 to sync with authentication
+
+ntp authenticate
+
+ntp authentication-key 1 md5 ccna
+
+- config key 1 as the trusted key
+
+ntp trusted-key 1
+
+
+
+#R2
+
+conf t
+
+ntp authenticate
+
+ntp authentication-key 1 md5 ccna
+
+- config key 1 as the trusted key
+
+ntp trusted-key 1
+
+ntp server 192.168.12.1 key 1
+
+
+- fast forward 
+
+show ntp association
+
+show clock detail
+
+
+- update the hardware calendars
+
+conf t 
+
+ntp update-calendar
+
+exit 
+
+show calender
+
+show ?
+
+
+
+#R3
+
+conf t
+
+ntp authenticate
+
+ntp authentication-key 1 md5 ccna
+
+ntp trusted-key 1
+
+ntp server 192.168.13.1 key 1
+
+ntp update-calendar
+
+
+- fast forward 
+
+show ntp association
+
+show clock detail
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,56 @@
+== Edge, Shared, point to point
+
+
+
+
+All the switch have same priority number
+
+We are dealing with just a single vlan
+
+0–9 A-10 B-11 C-12 D-13 E-14 F-15
+
+Switch 1 -> show spanning tree
+
+- Label all the interfaces
+
+- F0/3 is a backup port
+
+- Switch 4 f0/1 has the lowest mac although they have the same root bridge
+
+- Check port status in each switch and label them.
+
+- RSTP config on switches connected to pcs
+
+
+
+SW4
+int range f0/1-2
+spanning-tree link-type point-to-point
+
+int f0/24
+spanning-tree portfast
+
+do show span tree
+
+f0/24 is still point to point because its using full duplex
+
+
+
+SW3
+do show span tree
+int f0/24
+spanning-tree portfast
+
+
+SW2
+do show span tree
+int f0/23
+spanning-tree portfast
+int f0/24
+spanning-tree portfast
+
+
+
+SW1
+do show span tree
+

@@ -1,0 +1,176 @@
+Configuring IPv6  Static Routes
+
+
+- EUI-64 (Extended Unique Identifier-64) is a method that automatically generates the 64-bit interface ID for an IPv6 address using a device's 48-bit MAC address. 
+
+- It eliminates the need for manual configuration or DHCP by mapping a device's hardware address directly into its network address.
+
+1. Split the MAC Address: The 48-bit MAC address is divided into two 24-bit halves.
+
+2. Inject FFFE: The 16-bit hex value FFFE is inserted exactly between the two halves.
+
+3. Flip the 7th Bit: The 7th bit of the first byte (the Universal/Local bit) is inverted. If it was 0, it becomes 1 (and vice versa). This is done to indicate that the address has been transformed to match the 64-bit standard.
+
+
+R1
+
+- check the mac of the interface
+
+en
+
+show int g0/1
+
+- take the mac add
+
+- split it into 2
+
+- add fffe in the middle
+
+- invert the 7th bit which will make the 0 a 2
+
+
+MAC 0030.F236.4502   1
+
+0030.F2   36.4502    2
+
+0030.F2FF   FE36.4502 3
+
+0230.F2FF.FE36.4502   4
+
+
+2001:DB8::230:F2FF:FE36:4502 / 64
+
+- enable ipv6 routing 
+
+ipv6 unicast-routing
+
+int g0/1
+
+ipv6 add 2001:db8::/64  eui-64
+
+do show ipv6 int br
+
+
+
+R2
+
+en
+
+show int g0/1
+
+- enable ipv6 routing 
+
+ipv6 unicast-routing
+
+int g0/1
+
+ipv6 add 2001:db8:0:1::/64  eui-64
+
+do show ipv6 int br
+
+
+
+
+STEP 2
+
+- CONFIG DEFAULT GATEWAY
+
+PC2
+
+- copy the link local ipv6 from R2 paste as the default gateway
+
+2001:db8:0:1::2  /64
+
+
+PC1
+
+- copy the link local ipv6 from R1 paste as the default gateway
+
+2001:db8::2  /64
+
+
+STEP 3
+
+ENABLE IPV6 ON G0/0 INTERFACES
+
+R1
+
+int g0/0
+
+ipv6 enable     --- to enable ipv6 on an interface
+
+do show ipv6 interface br   -- Link Local address
+
+
+R2
+
+int g0/0
+
+ipv6 enable
+
+do show ipv6 interface br
+
+
+
+STEP 4 
+
+CONFIG STATIC ROUTES
+
+- will config a route to each specific subnet, copy the link-local address  
+
+
+R1
+
+ipv6 route 2001:db8:0:1::/64 FE80::201:63FF:FEB0:B801
+
+- we can use the link-local address to use the interface
+
+ipv6 route 2001:db8:0:1::/64 g0/0 FE80::201:63FF:FEB0:B801
+
+
+R2
+
+ipv6 route 2001:db8::/64 g0/0 FE80::230:F2FF:FE36:4501
+
+
+
+Ping PC2 from PC1
+
+ping 2001:db8:0:1::2
+
+
+
+- We look at IPV6 static routing in the next part
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

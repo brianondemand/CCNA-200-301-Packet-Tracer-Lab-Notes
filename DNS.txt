@@ -1,0 +1,124 @@
+### DNS (CCNA Quick Notes)
+
+- Resolves hostnames to IP addresses.
+- Acts like the Internet's phonebook.
+
+
+www.google.com → 142.250.190.78
+
+
+**Purpose:**
+
+- Allows users to use names instead of IP addresses.
+
+**DNS Components:**
+
+- DNS Client (Resolver) – Requests name resolution.
+- DNS Server – Responds with IP addresses.
+
+**Ports:**
+
+- UDP 53 (most queries)
+- TCP 53 (zone transfers, large responses)
+
+**Common Records:**
+
+- A → IPv4 address
+- AAAA → IPv6 address
+- CNAME → Alias
+- MX → Mail server
+- NS → Name server
+
+**Cisco Command:**
+
+
+ip name-server 8.8.8.8
+
+
+**Exam Reminder:**
+
+* DNS = Name → IP
+* DHCP = Assign IP
+* NTP = Synchronize Time
+
+### One-Line Memory Trick
+
+**DNS finds addresses, DHCP gives addresses, NTP sets time.**
+
+
+
+PRACTICAL
+
+- Will config R1 and these three PCs to use 1.1.1.1  as their DNS server
+
+
+1. Configure a default route to the Internet on R1.
+
+## R1
+
+en
+
+conf t
+
+ip route 0.0.0.0   0.0.0.0  203.0.113.2
+
+- check if route is working by pinging 1.1.1.1  / arp is slow on packet tracer so  1 or 2 pings might fail
+
+
+do ping 1.1.1.1
+
+- check for success rate 100 %
+
+
+
+2. Configure PC1, PC2, and PC3 to use 1.1.1.1 as their DNS server.
+
+
+PC1, 2, 3
+
+1.1.1.1
+
+
+3. Configure R1 to use 1.1.1.1 as its DNS server.
+    Configure host entries on R1 for R1, PC1, PC2, and PC3.
+    Ping PC1 by name from R1.
+
+
+#R1
+
+conf t
+
+ip name-server 1.1.1.1
+
+ip host R1 192.168.0.254
+
+ip host PC1 192.168.0.1
+
+ip host PC2 192.168.0.2
+
+ip host PC3 192.168.0.3
+
+
+do show host   -> check the host table
+
+
+do ping PC1
+
+
+4. #USE SIMULATION MODE FOR THIS STEP#
+    From PC1, ping youtube.com by name.  Analyze the messages being sent.
+
+
+- enable simulation mode 
+
+- go to pc 1 
+
+
+ping youtube.com
+
+- we can see a DNS messages
+
+- check the content of the DNS response at PC1   (PC1 ICMP)
+
+- you will see the ip address for youtube.com
+

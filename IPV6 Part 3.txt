@@ -1,0 +1,197 @@
+Configuring IPv6 Routing
+
+
+- Will config ipv6 on pcs SLAAC we must enable ipv6 on the routers
+
+STEP 1
+
+R1 
+
+en
+
+conf t
+
+ipv6 unicast-routing
+
+
+
+R2 
+
+en
+
+conf t
+
+ipv6 unicast-routing
+
+
+STEP 2
+
+- Packet tracer automatically enabled SLAAC for PC1 
+
+
+- NDP stands for Neighbor Discovery Protocol. It is a fundamental protocol used in IPv6 networks to manage communications between devices on the local network.
+
+- The pcs have learned IPV6 address from R1 NDP router advertisement message 
+
+fa0- they also learned the network prefix from R1 and the second half, the interface ID was generated using EUI-64.
+
+- latter will  ping PC1 and PC2 
+
+- go to pc 2 to copy the ipv6 address
+
+ipconfig
+
+
+STEP 3
+
+- The path from R1 to R3 should be the main path
+
+- Serial connection to R2 should be used as backup only
+
+- R1 needs 2 routes to R3, internal LAN (the main route) to R3 and a backup route to R2
+
+
+- we can enter the next hop or both exit interface and next hop
+
+- we cant use directly attached static route, only use recursive or fully-specified static routes, so will use fully specified routes.
+
+
+
+
+R1
+
+ipv6 route 2001:db8:0:3::/64 g0/1 2001:db8:0:13::2
+
+
+R2
+
+- we need R2 link-local address to use the next hop
+
+do show ipv6 int br
+
+
+
+R1
+
+ipv6 route 2001:db8:0:3::/64 s0/0/0 FE80::20B:BEFF:FE7:4901 5
+
+
+- the 5 is the administrative distance in cisco IOS a normal static route has an AD of 1 so we need to make AD higher than 1
+
+
+
+do show ipv6 route
+
+do sh run | include ipv6 route
+
+
+- copy R1 link local address S0/0/0
+
+do show ipv6 int br
+
+
+R2
+
+- need a route to R1 lan and R3
+
+- config route to R1
+
+ipv6 route 2001:db8:0:1::/64 s0/0/0 FE80::202:4AFF:FE23:E201
+
+
+
+- go to R3 and copy the link Local address s0/0/0
+
+- come back to R2
+
+
+
+ipv6 route 2001:db8:0:3::/64 s0/0/1 FE80::290:2BFF:FECC:A101
+
+do show ipv6 route
+
+
+
+- get the R2 s0/0/1 interface 
+
+do show ipv6 int br
+
+
+R3
+
+ipv6 route 2001:db8:0:1::/64 g0/1 2001:db8:0:13::1
+
+
+
+- route to r2 use R2 link local
+
+ipv6 route 2001:db8:0:1::/64 s0/0/1 FE80::20B:BEFF:FED7:4901 5
+
+
+
+test pings on pcs
+
+PC1
+
+ping 2001:DB:0:3:240:BFF:FE69:9B18
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

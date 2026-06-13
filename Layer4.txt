@@ -1,0 +1,56 @@
+**Transport Layer – Layer 4 of the OSI Model**
+
+The Transport Layer (Layer 4) in the OSI model is responsible for the reliable transmission of data between devices across a network. Its core job is to take data from the Application Layer (Layer 7) and ensure it gets delivered properly to the corresponding application on another device. It works closely with Layer 3 (Network Layer) to send data to the right host and then ensures that the right application or process on that host receives the data. The two primary protocols used at Layer 4 are TCP (Transmission Control Protocol) and UDP (User Datagram Protocol). These protocols handle data segmentation, delivery, reassembly, and error correction (in TCP's case).
+
+---
+
+**TCP – Transmission Control Protocol**
+
+TCP is a connection-oriented protocol. That means before any data is sent, a connection must first be established between the two devices using a process called the three-way handshake. Once this connection is established, data can be reliably transmitted in an ordered fashion. Each segment of data sent by TCP is tracked using sequence numbers. The receiving device sends acknowledgments (ACKs) back to confirm receipt of the data.
+
+The three-way handshake starts when the initiating device sends a SYN (synchronize) packet to the receiver. The receiver responds with a SYN-ACK (synchronize-acknowledgment), and then the initiating device replies with an ACK. At this point, both devices have agreed to communicate, and data transfer begins.
+
+TCP ensures that all segments arrive correctly and in order. If a segment is lost, duplicated, or arrives out of order, TCP has mechanisms to detect and correct the problem. It will retransmit lost segments and reassemble segments in the correct order. This reliability comes at the cost of speed and overhead. Every TCP connection includes management of sequence numbers, acknowledgment numbers, window sizes, and checksums, all of which add extra data to each segment.
+
+TCP also includes flow control using the sliding window mechanism. This means that the sender controls how much data is sent at once, based on how much data the receiver can handle at that time. If the receiver’s buffer is full, it will tell the sender to slow down. TCP also includes congestion control, which detects network congestion (such as dropped packets) and slows down the rate of transmission to prevent making the problem worse.
+
+TCP is used in applications where data integrity is critical. Examples include web browsing (HTTP/HTTPS), email (SMTP, IMAP, POP3), file transfers (FTP), and remote logins (SSH, Telnet). These applications need reliable, ordered, and complete delivery of data.
+
+---
+
+**UDP – User Datagram Protocol**
+
+UDP is a connectionless protocol. Unlike TCP, UDP does not establish a connection before sending data. It simply sends datagrams (also called packets), and hopes they arrive. There is no acknowledgment, no retransmission, and no ordering. If a UDP packet is lost, corrupted, or arrives out of order, the protocol itself does nothing to correct it. That responsibility is left to the application using UDP.
+
+Because it has very little overhead (no connection establishment, no flow control, no error correction), UDP is significantly faster and more efficient than TCP. However, the trade-off is reliability. UDP is ideal for applications where speed is more important than reliability, or where real-time performance is needed.
+
+Applications that use UDP include DNS (Domain Name System), VoIP (Voice over IP), video streaming, online gaming, and broadcast/multicast applications. In these use cases, a small amount of data loss is acceptable. For example, in a voice call, it’s better to drop a few milliseconds of audio than to delay the whole call while waiting for missing packets to be retransmitted.
+
+UDP uses port numbers to direct traffic to the correct application on the receiving device, just like TCP. However, because UDP does not establish a session, it’s much simpler and faster.
+
+---
+
+**Port Numbers**
+
+Both TCP and UDP use port numbers to identify specific services and applications on a host. Port numbers are 16-bit values, meaning the range is from 0 to 65535. Ports from 0 to 1023 are called well-known ports and are assigned to specific services. For example, HTTP uses port 80, HTTPS uses 443, DNS uses port 53, and SSH uses port 22. Ports from 1024 to 49151 are registered ports, and ports from 49152 to 65535 are dynamic or private ports, often used for temporary connections or custom applications.
+
+---
+
+**How TCP and UDP Interact With IP**
+
+TCP and UDP operate on top of the Internet Protocol (IP), which is a Layer 3 protocol. IP handles addressing and routing data to the correct destination host. Once the data arrives at the correct host, the Transport Layer (TCP or UDP) ensures it gets to the correct application. This process is often referred to as multiplexing and demultiplexing. On the sending side, multiplexing allows multiple applications to share the same network connection by assigning different port numbers. On the receiving side, demultiplexing ensures the data is directed to the correct application based on the destination port number.
+
+---
+
+**Real-World Use and Troubleshooting**
+
+In real-world networking and troubleshooting (which is a huge part of CCNA and cybersecurity), understanding the difference between TCP and UDP is critical. For TCP-based applications, you can use tools like Wireshark or packet capture to look for missing acknowledgments, timeouts, or incomplete handshakes. For UDP-based applications, troubleshooting often focuses on application-layer behavior, firewall/NAT issues, or packet loss on the network. Since UDP doesn't provide feedback on packet delivery, problems are usually harder to detect without specialized monitoring tools.
+
+---
+
+**Summary**
+
+The Transport Layer is responsible for the end-to-end delivery of data between applications running on different devices. TCP provides a reliable, connection-based service with error correction and flow control, while UDP provides a fast, connectionless service with minimal overhead. Both protocols use port numbers to direct traffic to the appropriate applications. A deep understanding of how these protocols work is crucial for any network engineer, especially when diagnosing network issues or designing application-level services.
+
+---
+

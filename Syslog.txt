@@ -1,0 +1,206 @@
+### Syslog — CCNA Quick Notes
+
+- **Syslog** is used to **collect and store log messages** from network devices.
+
+- Helps administrators **monitor, troubleshoot, and audit** networks.
+
+- Devices such as routers, switches, firewalls, and servers can send logs to a **Syslog Server**.
+
+**Port:**
+
+- UDP 514
+
+
+
+**Severity Levels (0–7):**
+
+
+0 - Emergency
+1 - Alert
+2 - Critical
+3 - Error
+4 - Warning
+5 - Notification
+6 - Informational
+7 - Debugging
+
+
+**Example:**
+
+Router → Syslog Server
+       "Interface Gig0/0 changed state to down"
+
+
+**Remember:**
+
+- **SNMP = Monitor devices**
+- **Syslog = Record device events and errors**
+- **NTP = Synchronize time**
+
+### One-Line Memory Note
+
+**Syslog collects and stores network device logs for monitoring and troubleshooting.**
+
+
+
+PRACTICAL LAB
+
+
+R1 username: jeremy, PW: ccna, enable PW: ccna
+
+1. Connect to R1's console port using PC2:
+     -Shut down the G0/0 interface
+     -After you receive a syslog message, re-enable the interface.
+     -What is the severity level of the syslog messages?
+     -Enable timestamps for logging messages
+
+
+- Go to PC2 and connect to R1 through the console connection, to desktop, the terminal the click ok,then login jeremy:ccna
+
+- shut down the g0/0 interface
+
+conf t
+
+int g0/0
+
+shutdown
+
+- two messages are displed one for status the other for protocol, enable the interfaces again
+
+no shutdown
+
+- the messages are consided severity level 5 also know as notice or notification / they dont have timestamps lets enable that.
+
+service timestamp log datetime msec
+
+exit
+
+- the log messages have a timestamp now
+
+
+
+2. Telnet from PC1 to R1's G0/0 interface (watch the video to learn how!)
+
+     -Enable the unused G0/1 interface
+     -Why does no syslog message appear?
+     -Enable logging to the VTY lines for the current session.
+
+  *there is no 'logging monitor' command in packet tracer, 
+    but it's enabled by default
+
+
+- to telnet to R1 we need PC1 cmd
+
+
+telnet 192.168.1.1
+
+jeremy:ccna
+
+en
+
+conf t
+
+int g0/1
+
+no shut
+
+- no log messages will be shown when connecting via VTY lines
+
+- VTY (Virtual Terminal) lines are used to allow remote access to a Cisco device.
+
+
+
+
+
+3. Enable logging to the buffer, and configure the buffer size to 8192 bytes.
+
+
+
+- In Cisco IOS, terminal monitor and logging monitor are two commands used to display system logs and debug outputs on remote terminal sessions (like SSH or Telnet). 
+
+- By default, these logs are only sent to the physical console port.  logging is not available in packet tracer
+
+
+do terminal monitor  (prive Exc mode)
+
+- the monitor command only works on the current session, if exit telnet session and login back again the logs should not appear
+
+
+- Logging to the buffer allows you to store Cisco device system messages in internal RAM
+
+
+do show logging
+
+exit
+
+logging buffered
+
+logging buffered 8192
+
+- check the default level of message logged
+
+do show logging
+
+
+
+4. Enable logging to the syslog server SRV1 with a level of 'debugging'.
+
+
+- we can use either logging and then the ip address or add host and then enter the ip address 
+
+
+logging ?
+
+logging host 192.168.1.100
+
+- R1 will now send syslog messages to SRV1 lets set the severity to debugging
+
+
+logging trap debugging 
+
+exit
+
+- lets generate more logging messages
+
+int g0/1
+
+no shutdown
+
+- then disable it again
+
+shutdown
+
+end
+
+
+- it will generate some log messages
+
+- lets go on server 1 then click on services then syslog to check the messages sent to the server.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
