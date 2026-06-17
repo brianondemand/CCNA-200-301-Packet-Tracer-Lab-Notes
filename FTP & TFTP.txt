@@ -1,0 +1,252 @@
+# FTP & TFTP (Complete CCNA Notes)
+
+## FTP (File Transfer Protocol)
+
+* Used to transfer files between devices.
+* Reliable because it uses **TCP**.
+* Requires **authentication** (username and password).
+* Supports uploading and downloading files.
+* Commonly used to back up configurations and transfer IOS images.
+
+**Ports:**
+
+* TCP 21 → Control connection
+* TCP 20 → Data connection
+
+**Characteristics:**
+
+* Connection-oriented
+* Reliable delivery
+* Authentication required
+* More overhead than TFTP
+
+---
+
+## TFTP (Trivial File Transfer Protocol)
+
+* Simple file transfer protocol.
+* Uses **UDP**.
+* No authentication.
+* No encryption.
+* Primarily used in trusted networks.
+* Often used for IOS images, configuration backups, and boot files.
+
+**Port:**
+
+* UDP 69
+
+**Characteristics:**
+
+* Connectionless
+* Faster but less reliable
+* No authentication
+* No directory browsing
+* Smaller and simpler than FTP
+
+---
+
+## Cisco Examples
+
+Backup running configuration to TFTP:
+
+```cisco
+copy running-config tftp
+```
+
+Restore configuration from TFTP:
+
+```cisco
+copy tftp running-config
+```
+
+Backup running configuration to FTP:
+
+```cisco
+copy running-config ftp
+```
+
+Copy IOS image from TFTP server:
+
+```cisco
+copy tftp flash
+```
+
+---
+
+## FTP vs TFTP
+
+| Feature             | FTP    | TFTP  |
+| ------------------- | ------ | ----- |
+| Transport Protocol  | TCP    | UDP   |
+| Port                | 20, 21 | 69    |
+| Authentication      | Yes    | No    |
+| Reliability         | High   | Lower |
+| Connection-Oriented | Yes    | No    |
+| Encryption          | No     | No    |
+| Complexity          | Higher | Lower |
+
+---
+
+## CCNA Exam Tips
+
+* **FTP = TCP = Reliable = Authentication**
+* **TFTP = UDP = Simple = No Authentication**
+* TFTP is commonly used by Cisco devices for configuration and IOS transfers.
+* FTP uses separate control and data connections.
+* Neither FTP nor TFTP encrypts data.
+
+### Memory Trick
+
+```text
+FTP  = Full-featured, Password, TCP
+TFTP = Tiny FTP, No Password, UDP
+```
+
+
+
+
+PRACTICAL LAB
+
+
+- from the services tab SRV1 TFTP service is enabled and will respond to any TFTP clients trying to download or upload files
+
+- the list below contain os files for different devices
+
+- click on the ftp and iis enabled and needs a username and a password
+
+
+
+1. Configure the appropriate IP addresses on each device.
+    Configure routing on the routers to allow full connectivity.
+
+- check if the configurations have been made
+
+- R1 and R2 static routes to 10.0.0.0/24 on R2 
+
+
+
+
+2. Use TFTP on R1 to retrieve the following file from SRV1:
+    c2900-universalk9-mz.SPA.155-3.M4a.bin
+
+
+3. Upgrade R1's OS and then delete the old file from flash.
+
+
+4. Use FTP on R2 to retrieve the following file from SRV1:
+    c2900-universalk9-mz.SPA.155-3.M4a.bin
+    (FTP username: jeremy, password: ccna)
+  **THE TRANSFER MAY TAKE ABOUT A MINUTE**
+
+5. Upgrade R2's OS and then delete the old file from flash.
+
+
+
+
+- On R1 we use TFTP to get the new IOS file from SRV1
+
+- lets check the current version on R1
+
+en
+
+show version
+
+- check the file version in flash
+
+show flash
+
+copy tftp flash
+
+10.0.0.1
+
+paste the iso name
+
+enter
+
+
+- file has been copied to the flash of R1
+
+show flash
+
+- lets make R1 boot with the new iso
+
+conf t
+
+boot system flash {iso name}
+
+exit
+
+write
+
+reload   --> restart the router
+
+- After reboot
+
+en
+
+show version
+
+- delete old file from flash, copy the old filename
+
+show flash
+
+delete flash:{old_flash_filename}
+
+show flash
+
+
+
+## R2
+
+en
+
+show version
+
+- is using version 1
+
+- To use ftp in R2 we need to config the username and password / use the services option
+
+
+ip ftp username jeremy
+
+ip ftp password ccna
+
+exit
+
+copy ftp flash
+
+10.0.0.1
+
+{iso_name}
+
+enter
+
+- FTP is slower than TFTP in packet tracer so it might take a while
+
+show flash
+
+boot system flash {iso_name}
+
+exit
+
+write
+
+reload
+
+
+- check if its using new iso
+
+en
+
+check version
+
+show flash
+
+- copy old iso file name
+
+delete flash:{old_iso_filename}
+
+show flash
+
+
+

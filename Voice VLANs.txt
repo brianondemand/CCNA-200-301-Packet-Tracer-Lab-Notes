@@ -1,0 +1,274 @@
+# Voice VLANs – CCNA Complete Summary Notes
+
+## What is a Voice VLAN?
+
+* A **Voice VLAN** is a separate VLAN used specifically for **IP phones**.
+* It separates **voice traffic** from **data traffic** on the same switch port.
+* Improves voice quality, security, and network management.
+
+---
+
+## Why Use a Voice VLAN?
+
+* Prioritizes voice traffic.
+* Reduces delays (latency) and jitter.
+* Separates voice devices from PCs.
+* Makes troubleshooting easier.
+
+---
+
+## Typical Setup
+
+```text
+PC
+ │
+ ▼
+IP Phone
+ │
+ ▼
+Switch
+```
+
+The phone and PC share the same switch port:
+
+* PC traffic → Data VLAN
+* Phone traffic → Voice VLAN
+
+Example:
+
+```text
+Data VLAN  = VLAN 10
+Voice VLAN = VLAN 20
+```
+
+---
+
+## How It Works
+
+An IP phone tags its voice traffic with the Voice VLAN ID.
+
+Example:
+
+```text
+PC Traffic     → VLAN 10
+Phone Traffic  → VLAN 20
+```
+
+The switch can distinguish between voice and data traffic even though both use the same physical port.
+
+---
+
+## Benefits
+
+* Better call quality.
+* Easier management.
+* Increased security.
+* Supports QoS (Quality of Service).
+
+---
+
+## Cisco Configuration Example
+
+Assign Data VLAN:
+
+```cisco
+switchport access vlan 10
+```
+
+Assign Voice VLAN:
+
+```cisco
+switchport voice vlan 20
+```
+
+Complete example:
+
+```cisco
+interface fa0/1
+ switchport mode access
+ switchport access vlan 10
+ switchport voice vlan 20
+```
+
+---
+
+## Voice VLAN and QoS
+
+Voice traffic is sensitive to:
+
+* Delay (Latency)
+* Jitter
+* Packet Loss
+
+Voice VLANs are commonly used with **QoS** to prioritize voice packets over normal data traffic.
+
+---
+
+## Traffic Example
+
+```text
+PC → VLAN 10 → Normal Data
+
+IP Phone → VLAN 20 → Voice Traffic
+```
+
+---
+
+## Verification Commands
+
+Show VLAN information:
+
+```cisco
+show vlan brief
+```
+
+Show interface switchport details:
+
+```cisco
+show interfaces switchport
+```
+
+---
+
+## CCNA Exam Tips
+
+### Key Commands
+
+```cisco
+switchport access vlan 10
+switchport voice vlan 20
+```
+
+### Remember
+
+* One switch port can carry:
+
+  * Data VLAN traffic
+  * Voice VLAN traffic
+* IP phones typically use a dedicated Voice VLAN.
+* Voice VLANs improve voice quality and support QoS.
+
+---
+
+## Common Exam Question
+
+**Can a switch port belong to both a Data VLAN and a Voice VLAN?**
+
+**Yes.**
+
+Example:
+
+```text
+Data VLAN  = 10
+Voice VLAN = 20
+```
+
+The PC uses VLAN 10, while the IP phone uses VLAN 20 on the same switch port.
+
+---
+
+
+
+PRACTICAL LAB
+
+**Telephony configurations (not relevant to the CCNA) have been pre-configured on R1**
+
+
+1. Configure SW1's interfaces in the appropriate VLANs.
+
+
+##SW1
+
+en
+
+conf t
+
+int range g1/0/2 -3
+
+switchport mode access
+
+switchport access vlan 10
+
+switchport voice vlan 20
+
+- config SW1 trunk
+
+int g1/0/1
+
+switchport trunk encapsulation dot1q
+
+sw mode trunk allowed vlan 10,20
+
+
+
+2. Configure ROAS for the connection between SW1 and R1.
+
+en
+
+conf t
+
+int f0/0
+
+no shutdown
+
+encapsulation dot1q 10
+
+ip add 192.168.10.1  255.255.255.0
+
+int f0/0.20
+
+encapsulation dot1q 20
+
+ip add 192.168.20.1  255.255.255.0
+
+
+
+- lets ping PC2 from PC1
+
+
+3. In simulation mode, ping PC2 from PC1.
+    Is the traffic tagged with a VLAN ID?
+
+- ping pc 2 again and check the frames from outbound pdu details
+
+- no tags available
+
+
+
+
+
+
+4. In simulation mode, call PH1 from PH2.  Is the traffic tagged with a VLAN ID?
+
+
+- go to phone to GUI tab 
+
+- the number is assigned by R1
+
+- go to simulation mode select phone 1 class phone 2 click on the phone to pick it up
+
+- Skinny client control protocol is sent  SCCP
+
+- in the sumulation panel you will see source ip and in layer 2 the dot1q tag
+
+- inside the PDU details you will see TPID (dot1q) the TCI (vlan id)
+
+
+- traffic send to pcs will not be tagged but the one sent on the phones will be tagged 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

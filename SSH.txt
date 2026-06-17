@@ -157,7 +157,7 @@ crypto key generate rsa
 
 - will not generate because it needs a domain so will generate one
 
-ip domain name inceptor.co.ke
+ip domain-name inceptor.co.ke
 
 crypto key generate rsa
 

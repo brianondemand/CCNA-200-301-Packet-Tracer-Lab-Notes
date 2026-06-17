@@ -1,0 +1,519 @@
+# QoS (Quality of Service) – CCNA Complete Summary Notes
+
+## What is QoS?
+
+* **QoS (Quality of Service)** is a set of techniques used to **prioritize important network traffic**.
+* Ensures critical applications get the bandwidth and performance they need.
+* Commonly used for:
+
+  * Voice (VoIP)
+  * Video conferencing
+  * Streaming
+  * Real-time applications
+
+---
+
+## Why QoS is Needed
+
+Without QoS:
+
+```text
+Voice + Video + File Downloads
+            ↓
+      Compete Equally
+            ↓
+      Delays and Jitter
+```
+
+With QoS:
+
+```text
+Voice → Highest Priority
+Video → Medium Priority
+Data  → Normal Priority
+```
+
+---
+
+## Problems QoS Solves
+
+### Latency
+
+* Delay in packet delivery.
+
+### Jitter
+
+* Variation in packet arrival times.
+
+### Packet Loss
+
+* Packets dropped due to congestion.
+
+### Bandwidth Contention
+
+* Multiple devices competing for bandwidth.
+
+---
+
+## QoS Process
+
+### 1. Classification
+
+Identify traffic types.
+
+Example:
+
+```text
+Voice
+Video
+Web Traffic
+File Transfers
+```
+
+---
+
+### 2. Marking
+
+Traffic is tagged with a priority value.
+
+Common markings:
+
+* DSCP
+* CoS
+
+---
+
+### 3. Queuing
+
+Traffic is placed into queues.
+
+Higher-priority traffic is sent first.
+
+Example:
+
+```text
+High Priority Queue
+   ↓
+Voice
+
+Medium Priority Queue
+   ↓
+Video
+
+Normal Queue
+   ↓
+Data
+```
+
+---
+
+### 4. Congestion Management
+
+Controls how traffic is handled during congestion.
+
+---
+
+## DSCP (Differentiated Services Code Point)
+
+Used to mark packets at Layer 3.
+
+Located in the IP header.
+
+### Common Values
+
+| Traffic Type | DSCP       |
+| ------------ | ---------- |
+| Best Effort  | 0          |
+| Voice        | EF (46)    |
+| Video        | AF Classes |
+
+**EF = Expedited Forwarding**
+
+Often used for VoIP traffic.
+
+---
+
+## CoS (Class of Service)
+
+* Layer 2 marking.
+* Found in 802.1Q VLAN tags.
+* Values range:
+
+```text
+0 - 7
+```
+
+Higher value = Higher priority.
+
+---
+
+## Trust Boundary
+
+The point where QoS markings are accepted.
+
+Example:
+
+```text
+IP Phone → Switch → Router
+```
+
+Switch trusts markings from the IP phone.
+
+---
+
+## Queuing
+
+### FIFO (First In First Out)
+
+```text
+First Packet In
+      ↓
+First Packet Out
+```
+
+No prioritization.
+
+---
+
+### Priority Queuing
+
+Voice traffic sent before other traffic.
+
+---
+
+## QoS for Voice
+
+Voice requires:
+
+* Low latency
+* Low jitter
+* Minimal packet loss
+
+Voice traffic is usually:
+
+```text
+DSCP EF (46)
+```
+
+and receives highest priority.
+
+---
+
+## Cisco QoS Command
+
+Trust QoS markings:
+
+```cisco
+mls qos trust dscp
+```
+
+---
+
+## Benefits of QoS
+
+* Better voice quality.
+* Better video performance.
+* Reduced latency and jitter.
+* Improved user experience.
+* Efficient bandwidth usage.
+
+---
+
+## Verification Commands
+
+Show QoS configuration:
+
+```cisco
+show mls qos
+```
+
+Show policy information:
+
+```cisco
+show policy-map interface
+```
+
+---
+
+## CCNA Exam Tips
+
+### Remember the Three Problems
+
+```text
+Latency
+Jitter
+Packet Loss
+```
+
+### Markings
+
+```text
+DSCP = Layer 3
+CoS  = Layer 2
+```
+
+### Voice Traffic
+
+```text
+DSCP EF (46)
+```
+
+### Trust Command
+
+```cisco
+mls qos trust dscp
+```
+
+---
+
+## QoS at a Glance
+
+| Feature               | Purpose            |
+| --------------------- | ------------------ |
+| Classification        | Identify traffic   |
+| Marking               | Assign priority    |
+| Queuing               | Prioritize packets |
+| Congestion Management | Handle busy links  |
+
+---
+
+## Common Exam Questions
+
+**Why is QoS important for VoIP?**
+
+Because voice traffic is sensitive to:
+
+* Latency
+* Jitter
+* Packet loss
+
+---
+
+**What marking is commonly used for voice traffic?**
+
+```text
+DSCP EF (46)
+```
+
+---
+
+**Which operates at Layer 3?**
+
+```text
+DSCP
+```
+
+**Which operates at Layer 2?**
+
+```text
+CoS
+```
+
+---
+
+## One-Line Memory Note
+
+**QoS prioritizes important traffic such as voice and video to reduce latency, jitter, and packet loss during network congestion.**
+
+
+PRACTICAL LAB
+
+
+- will configure qos on R1 to ensure the most important traffic receives high priority treatment
+
+- htps traffic will be marked as AF31
+
+- when R1 fowards traffic out of g0/0/0 to R2 it will prioritized according to our configurations
+
+- Once it reaches R2 it will treat them all equally if not configured
+
+- In computer networking, Per-Hop Behavior (PHB) refers to the specific forwarding policy, priority, and resource allocation applied to a packet as it traverses an individual router or switch (a "hop") in a Differentiated Services (DiffServ) network.
+
+
+
+Configure the following QoS settings on R1
+and apply them outbound on interface G0/0/0:
+
+1. Mark HTTPS traffic as AF31
+*--Provide minimum 10% bandwidth as a priority queue
+
+
+
+2. Mark HTTP traffic as AF32
+*--Provide minimum 10% bandwidth
+
+
+
+
+3. Mark ICMP traffic as CS2
+*--Provide minimum 5% bandwidth
+
+
+
+
+4. Use simulation mode to view the DSCP markings of packets:
+   -when pinging jeremysitlab.com from PC1
+   -when accessing jeremysitlab.com from PC1 via HTTP
+   -when accessing jeremysitlab.com from PC1 via HTTPS
+ 
+
+
+##R1
+
+en
+
+conf t
+
+- there many ways to config qos, first you have to identify the traffic
+
+- for special kinds of trearment we need to tell the router hat kind of traffic you want to give that treatment
+
+- To identify traffic in a cisco ios qos config we use class maps
+
+
+class-map HTTPS_MAP
+
+match protocol https
+
+exit
+
+- this class map can be used to identify https traffic
+
+class-map HTTP_MAP
+
+match protocol http
+
+exit
+
+class-map ICMP_MAP
+
+match protocol icmp
+
+exit
+
+
+do show run | section class-map
+
+
+- the default mode of match-all was applied
+
+- this means that, to match this class map, traffic has to match all of the match statements in that class map
+
+
+- next will specify what kind of treatment we want to give to each kind of traffic / we use policy maps
+
+policy-map G0/0/0_OUT
+
+?
+
+class HTTPS_MAP
+
+?
+
+- lets tell r1 what to do with this traffic
+
+set ip dscp AF31
+
+- will mark any https packets with a DSCP value of AF31
+
+- will give https a priority queue with at least 10% of the links bandwidth during peroids of congestions
+
+priority percent 10
+
+exit
+
+
+
+
+class HTTP_MAP
+
+set ip dscp af32
+
+- will give it a minimum bandwidth of 10% during times of congestion but will not be a priority queue
+
+
+bandwidth percent 10
+
+exit
+
+class-map ICMP_MAP
+
+bandwidth percent 5
+
+exit
+
+
+do show run | section policy-map
+
+- we have not applied it out bound to g0/0/0  / after we do it will check all traffic
+
+- if its an HTTPS packet it will mark DSCP AF31 and give it a priority queue with atleast 10% of the links bandwidth
+
+- any other packet will not be marked and forwarded without any special qos
+
+- lets apply this map using service policy
+
+
+int g0/0/0/
+
+service-policy output G0/0/0_OUT
+
+end
+
+do show run 
+
+
+
+- simulation mode and ping server1
+
+ping 10.0.0.100
+
+- will send a dns request thats why we are using ip
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -151,6 +151,8 @@ ip address dhcp
 
 no shutdown
 
+do show ip int br
+
 
 
 3. Configure R1 as a DHCP relay agent for the 192.168.1.0/24 subnet.

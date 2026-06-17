@@ -20,6 +20,8 @@ In NTP (Network Time Protocol), stratum is simply a way of showing how far a dev
 
 NTP Stratum Levels
 
+- stratum levels refer to a hierarchical system used to measure the accuracy and distance of a device's clock from an authoritative primary reference source
+
 
 Stratum 0  → Reference clock
              (Atomic clock, GPS clock, etc.)
@@ -85,11 +87,13 @@ PRACTICAL
 
 ## R1
 
+- Enter Privileged EXEC Mode: Type enable and enter your password if prompted.
+
 en
 
 clock set 12:00:00 Jun 15 2026
 
-clock detail
+show clock detail
 
 - configure timezone
 
