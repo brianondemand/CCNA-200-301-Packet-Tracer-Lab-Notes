@@ -1,0 +1,693 @@
+# Wireless LANs (WLANs) – CCNA Complete Summary Notes
+
+## What is a Wireless LAN (WLAN)?
+
+* A **Wireless LAN (WLAN)** allows devices to connect to a network using **radio waves** instead of cables.
+* Uses **Wi-Fi** standards defined by the IEEE.
+* Operates primarily in the **2.4 GHz**, **5 GHz**, and **6 GHz** frequency bands.
+
+---
+
+## Main WLAN Components
+
+### Wireless Client
+
+Devices that connect to Wi-Fi:
+
+* Laptops
+* Smartphones
+* Tablets
+* Printers
+
+### Access Point (AP)
+
+* Connects wireless devices to the wired network.
+* Acts as a bridge between wireless and wired networks.
+
+### Wireless LAN Controller (WLC)
+
+* Centrally manages multiple APs.
+* Common in enterprise networks.
+
+---
+
+## Basic WLAN Topology
+
+```text
+Laptop
+   \
+Phone ---- Access Point ---- Switch ---- Network
+   /
+Tablet
+```
+
+---
+
+## SSID (Service Set Identifier)
+
+* The Wi-Fi network name.
+* Identifies a wireless network.
+
+Example:
+
+```text
+SSID: Office_WiFi
+SSID: Student_WiFi
+SSID: Guest_WiFi
+```
+
+Users select an SSID to connect.
+
+---
+
+## BSSID
+
+* The MAC address of the AP's radio.
+* Uniquely identifies a specific access point.
+
+---
+
+## WLAN Standards (802.11)
+
+### 802.11a
+
+```text
+5 GHz
+54 Mbps
+```
+
+---
+
+### 802.11b
+
+```text
+2.4 GHz
+11 Mbps
+```
+
+---
+
+### 802.11g
+
+```text
+2.4 GHz
+54 Mbps
+```
+
+---
+
+### 802.11n
+
+```text
+2.4 GHz and 5 GHz
+Up to 600 Mbps
+```
+
+---
+
+### 802.11ac
+
+```text
+5 GHz
+Multi-Gigabit Speeds
+```
+
+---
+
+### 802.11ax (Wi-Fi 6)
+
+```text
+2.4 GHz and 5 GHz
+Higher Efficiency
+Higher Capacity
+```
+
+---
+
+## Frequency Bands
+
+### 2.4 GHz
+
+Advantages:
+
+* Longer range
+* Better wall penetration
+
+Disadvantages:
+
+* More interference
+* Fewer channels
+
+---
+
+### 5 GHz
+
+Advantages:
+
+* Faster speeds
+* Less interference
+
+Disadvantages:
+
+* Shorter range
+
+---
+
+### 6 GHz
+
+Advantages:
+
+* More available channels
+* Less congestion
+
+Disadvantages:
+
+* Shorter range than 2.4 GHz
+
+---
+
+## Channels
+
+### 2.4 GHz Non-Overlapping Channels
+
+```text
+1
+6
+11
+```
+
+These are the channels most commonly used to avoid interference.
+
+---
+
+## WLAN Modes
+
+### Ad Hoc Mode
+
+Devices communicate directly.
+
+```text
+Laptop ↔ Laptop
+```
+
+No AP required.
+
+---
+
+### Infrastructure Mode
+
+Devices communicate through an AP.
+
+```text
+Client → AP → Network
+```
+
+Most common mode.
+
+---
+
+## CSMA/CA
+
+### Carrier Sense Multiple Access with Collision Avoidance
+
+Used by wireless networks because Wi-Fi devices cannot reliably detect collisions.
+
+Process:
+
+```text
+Listen
+   ↓
+Wait
+   ↓
+Transmit
+```
+
+---
+
+## Security Methods
+
+### Open Authentication
+
+```text
+No Security
+```
+
+Anyone can connect.
+
+---
+
+### WEP
+
+```text
+Weak Security
+```
+
+Deprecated and insecure.
+
+---
+
+### WPA
+
+```text
+Improved Security
+```
+
+Older than WPA2.
+
+---
+
+### WPA2
+
+```text
+AES Encryption
+```
+
+Most common CCNA answer.
+
+---
+
+### WPA3
+
+```text
+Strongest Security
+```
+
+Newest standard.
+
+---
+
+## Authentication Methods
+
+### PSK (Pre-Shared Key)
+
+```text
+Shared Password
+```
+
+Used in homes and small offices.
+
+---
+
+### Enterprise Authentication
+
+Uses:
+
+```text
+802.1X
+RADIUS
+```
+
+Common in enterprise environments.
+
+---
+
+## RADIUS
+
+### Remote Authentication Dial-In User Service
+
+Used for:
+
+* Authentication
+* Authorization
+* Accounting (AAA)
+
+Default Port:
+
+```text
+UDP 1812
+```
+
+Accounting:
+
+```text
+UDP 1813
+```
+
+---
+
+## Roaming
+
+Allows clients to move between APs while maintaining connectivity.
+
+Example:
+
+```text
+AP1 → AP2 → AP3
+```
+
+User keeps network access while moving.
+
+---
+
+## Lightweight vs Autonomous APs
+
+### Autonomous AP
+
+* Managed individually.
+* Configuration done on each AP.
+
+---
+
+### Lightweight AP
+
+* Managed by a WLC.
+* Centralized administration.
+
+---
+
+## CAPWAP
+
+### Control and Provisioning of Wireless Access Points
+
+Used between:
+
+```text
+Access Point ↔ Wireless LAN Controller
+```
+
+Ports:
+
+```text
+UDP 5246 → Control
+UDP 5247 → Data
+```
+
+---
+
+## WLAN Troubleshooting Topics
+
+Common issues:
+
+* Interference
+* Weak signal
+* Incorrect SSID
+* Wrong password
+* Channel overlap
+
+---
+
+## Verification Commands (Cisco)
+
+### WLC
+
+```cisco
+show wlan summary
+```
+
+---
+
+### AP Information
+
+```cisco
+show ap summary
+```
+
+---
+
+## CCNA Exam Tips
+
+### Standards
+
+| Standard | Frequency   |
+| -------- | ----------- |
+| 802.11b  | 2.4 GHz     |
+| 802.11g  | 2.4 GHz     |
+| 802.11a  | 5 GHz       |
+| 802.11n  | 2.4 & 5 GHz |
+| 802.11ac | 5 GHz       |
+| 802.11ax | 2.4 & 5 GHz |
+
+---
+
+### Security Ranking
+
+```text
+WEP < WPA < WPA2 < WPA3
+```
+
+---
+
+### Important Channels
+
+```text
+1
+6
+11
+```
+
+---
+
+### CAPWAP Ports
+
+```text
+5246 = Control
+5247 = Data
+```
+
+---
+
+### RADIUS Ports
+
+```text
+1812 = Authentication
+1813 = Accounting
+```
+
+---
+
+## Common Exam Questions
+
+### Which channels do not overlap in 2.4 GHz?
+
+```text
+1, 6, 11
+```
+
+---
+
+### Which protocol is used between APs and a WLC?
+
+```text
+CAPWAP
+```
+
+---
+
+### What is the most secure wireless standard?
+
+```text
+WPA3
+```
+
+---
+
+### What does SSID represent?
+
+```text
+Wireless Network Name
+```
+
+---
+
+### Which WLAN mode uses an AP?
+
+```text
+Infrastructure Mode
+```
+
+---
+
+## WLAN at a Glance
+
+| Feature   | Purpose                |
+| --------- | ---------------------- |
+| SSID      | Network Name           |
+| AP        | Wireless Connectivity  |
+| WLC       | Central AP Management  |
+| CAPWAP    | AP ↔ WLC Communication |
+| WPA2/WPA3 | Wireless Security      |
+| RADIUS    | Authentication         |
+| Roaming   | Move Between APs       |
+
+---
+
+## Most Important Exam Facts
+
+```text
+SSID = Wireless Network Name
+
+Channels 1, 6, 11 = Non-Overlapping
+
+CAPWAP = AP to WLC Communication
+
+WPA2/WPA3 = Secure Wireless Access
+
+CSMA/CA = Wireless Access Method
+
+802.11ax = Wi-Fi 6
+```
+
+---
+
+## One-Line Memory Note
+
+**A WLAN uses access points and radio waves to provide network connectivity, with WPA2/WPA3 for security, CAPWAP for AP management, and channels 1, 6, and 11 commonly used to reduce interference.**
+
+
+
+### PRACTICAL LABS
+
+
+1. Use the web browser on PC1 to access the GUI of WLC1.
+Username: admin
+Password: Cisco123
+   *you must use HTTPS
+
+2. Spend some time familiarizing yourself with the WLC GUI.
+    What information can be viewed from each tab?
+    What is the current state of the network?
+
+
+- Lets first check SW1 configurations
+
+## SW1 
+
+show running
+
+- its the dhcp server
+
+- dhcp pools
+
+
+-  lets check the wc1 config from pc1 go to the web browser 
+
+- use https 
+
+https://172.16.1.10
+
+- sw1 is connected to the green interface
+
+- on the default monitor tab click statistics and the ap join / will see the APs that have joined or tried to join the AP
+
+- click on the first one to see more details / the screen is good troubleshooting   you can see the messages exachanges by the wlc
+
+
+
+3. Configure dynamic interfaces for the Internal & Guest WLANs.
+
+- its under the controller tab / click on interfaces / create new interface
+
+- will name it internal and give it a VLAN ID of 100
+
+- then config the interface 
+
+port number 1
+
+ip add 10.0.0.10
+
+netmask 255.255.255.0
+
+gateway 10.0.0.1
+
+DHCP server 10.0.0.1
+
+
+- apply the settings
+
+
+- lets create a new one for the guest
+
+- will name it guest and give it a VLAN ID of 200
+
+port number 1
+
+vlan id 200
+
+ip add 10.1.0.10
+
+netmask 255.255.255.0
+
+gateway 10.1.0.1
+
+DHCP server 10.1.0.1
+
+
+- apply the settings
+
+
+
+4. Create the Internal & Guest WLANs using WPA2+PSK.
+
+- will create it from the WLANs tab
+
+- click on go
+
+- name Internal
+
+- ID it will identify the WLAN in the WLC / does no matter the number so will just use 1
+
+- apply
+
+- on the general tab we must enable WLAN
+
+- map it to the internal interface 
+ 
+- on the security tab will config the wlan using wpa2 with pre-shared key authentication
+
+- select wpa+wpa2 as the layer2 security
+
+- enable WPA2 policy
+
+- leave WPA2 encryption as AES
+
+- enable psk
+
+- psk password Cisco123
+
+
+- Next qos tab packet tracer functionality is abit limited
+
+- Go to the advance tab
+
+- set the maximum allowed clients to 100
+
+- apply to save the settings the back
+
+
+
+- Lets create the GUEST WLAN
+
+- config the psk authentication
+
+- apply the settings
+
+
+
+5. Add a wireless client to the network and associate it with an AP.
+
+
+- will add a smartphone
+
+- click on it the config tab then wireless0 interface 
+
+- change the SSID to Internal 
+
+- Authentication WPA2-PSK : Cisco123
+
+
+- will wait a bit for it to associate with an AP and get an IP
+
+- look at the ip the smartphone got , it got an ip address from the vlan 10 pool the management subnet
+
+
+- this is just a packet tracer error but real life the it will get from the correct pool
+
+
+
+
+
+
+
+
+
+
