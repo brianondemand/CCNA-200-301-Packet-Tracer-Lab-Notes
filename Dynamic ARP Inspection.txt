@@ -1,0 +1,436 @@
+# Dynamic ARP Inspection (DAI) – CCNA Complete Summary Notes
+
+## What is DAI?
+
+* **Dynamic ARP Inspection (DAI)** is a Layer 2 security feature.
+* Protects against **ARP Spoofing** (ARP Poisoning) attacks.
+* Validates ARP packets before allowing them through the switch.
+
+---
+
+## Why is DAI Needed?
+
+### Problem: ARP Spoofing
+
+An attacker sends fake ARP replies:
+
+```text
+Attacker:
+Gateway IP = My MAC Address
+```
+
+Victims update their ARP tables and send traffic to the attacker.
+
+Result:
+
+```text
+Victim
+   ↓
+Attacker
+   ↓
+Real Gateway
+```
+
+This allows:
+
+* Man-in-the-Middle (MITM) attacks
+* Traffic interception
+* Data theft
+
+---
+
+## How DAI Works
+
+DAI checks ARP packets against the:
+
+```text
+DHCP Snooping Binding Table
+```
+
+If the IP-MAC mapping is valid:
+
+```text
+ARP Packet
+     ↓
+Validated
+     ↓
+Forwarded
+```
+
+If invalid:
+
+```text
+ARP Packet
+     ↓
+Validation Failed
+     ↓
+Dropped
+```
+
+---
+
+## DAI Requirements
+
+### DHCP Snooping Must Be Enabled
+
+DAI relies on:
+
+```text
+DHCP Snooping Binding Table
+```
+
+Without DHCP Snooping:
+
+```text
+DAI cannot verify ARP packets
+```
+
+---
+
+## Trusted vs Untrusted Ports
+
+### Trusted Ports
+
+* ARP packets are not inspected.
+* Usually uplinks and trusted infrastructure devices.
+
+Configure:
+
+```cisco
+ip arp inspection trust
+```
+
+---
+
+### Untrusted Ports (Default)
+
+* ARP packets are inspected.
+* Usually connected to PCs and end devices.
+
+---
+
+## Enable DAI
+
+### Globally for a VLAN
+
+```cisco
+ip arp inspection vlan 10
+```
+
+Multiple VLANs:
+
+```cisco
+ip arp inspection vlan 10,20,30
+```
+
+---
+
+## Configure a Trusted Port
+
+```cisco
+interface g0/1
+ ip arp inspection trust
+```
+
+---
+
+## Verification Commands
+
+Show DAI status:
+
+```cisco
+show ip arp inspection
+```
+
+Show statistics:
+
+```cisco
+show ip arp inspection statistics
+```
+
+---
+
+## Example
+
+### Valid ARP Packet
+
+```text
+IP: 192.168.1.10
+MAC: 0011.2233.4455
+```
+
+Matches DHCP Snooping table:
+
+```text
+✓ Forwarded
+```
+
+---
+
+### Fake ARP Packet
+
+```text
+IP: 192.168.1.1
+MAC: AAAA.BBBB.CCCC
+```
+
+Does not match binding table:
+
+```text
+✗ Dropped
+```
+
+---
+
+## Benefits of DAI
+
+* Prevents ARP spoofing.
+* Prevents MITM attacks.
+* Validates IP-to-MAC mappings.
+* Improves Layer 2 security.
+
+---
+
+## Relationship with DHCP Snooping
+
+```text
+DHCP Snooping
+      ↓
+Creates Binding Table
+      ↓
+DAI Uses Binding Table
+      ↓
+Validates ARP Packets
+```
+
+### Easy Exam Memory
+
+```text
+DHCP Snooping = Builds Database
+
+DAI = Uses Database
+```
+
+---
+
+## DAI Packet Validation
+
+Checks:
+
+* Source MAC Address
+* Destination MAC Address
+* IP Address ↔ MAC Address Mapping
+
+Invalid packets are dropped.
+
+---
+
+## CCNA Exam Tips
+
+### Main Purpose
+
+```text
+Prevent ARP Spoofing
+```
+
+### Requirement
+
+```text
+DHCP Snooping Enabled
+```
+
+### Trusted Port Command
+
+```cisco
+ip arp inspection trust
+```
+
+### Enable DAI
+
+```cisco
+ip arp inspection vlan 10
+```
+
+### Verification
+
+```cisco
+show ip arp inspection
+```
+
+---
+
+## Common Exam Questions
+
+### What attack does DAI prevent?
+
+```text
+ARP Spoofing (ARP Poisoning)
+```
+
+---
+
+### What database does DAI use?
+
+```text
+DHCP Snooping Binding Table
+```
+
+---
+
+### Are ARP packets inspected on trusted ports?
+
+```text
+No
+```
+
+---
+
+### Are ARP packets inspected on untrusted ports?
+
+```text
+Yes
+```
+
+---
+
+## DAI at a Glance
+
+| Feature        | Purpose                     |
+| -------------- | --------------------------- |
+| DAI            | Prevent ARP Spoofing        |
+| Trusted Port   | No Inspection               |
+| Untrusted Port | ARP Inspection              |
+| Requirement    | DHCP Snooping               |
+| Database Used  | DHCP Snooping Binding Table |
+
+---
+
+## One-Line Memory Note
+
+**DAI protects against ARP spoofing by validating ARP packets against the DHCP Snooping binding table and dropping invalid ARP messages.**
+
+
+
+### PRACTICAL LAB
+
+
+1. Configure R1 as a DHCP server.
+    Exclude 192.168.1.1 - 192.168.1.9 from the pool
+    Default gateway: R1
+
+en
+
+conf t
+
+ip dhcp excluded-address 192.168.1.1  192.168.1.9
+
+ip dhcp pool POOL1
+
+network 192.168.1.0  255.255.255.0
+
+default-router 192.168.1.1
+
+
+
+
+2. Configure DHCP snooping on SW1 and SW2.
+
+
+## SW1
+
+en
+
+conf t
+
+ip dhcp snooping
+
+ip dhcp snooping vlan 1
+
+no ip dhcp snooping information option
+
+int g0/2
+
+ip dhcp snooping trust
+
+exit
+
+
+
+## SW2
+
+en
+
+conf t
+
+ip dhcp snooping
+
+ip dhcp snooping vlan 1
+
+no ip dhcp snooping information option
+
+int g0/1
+
+ip dhcp snooping trust
+
+exit
+
+
+
+
+3. Configure DAI on SW1 and SW2.
+  -Enable all additional validation checks
+  -Trust ports connected to a router or switch
+
+
+##SW2
+
+ip arp inspection vlan 1
+
+ip arp inspection validate dst-mac ip src-mac
+
+int g0/1
+
+ip arp inspection trust
+
+end
+
+show run
+
+show ip arp inspection interfaces
+
+
+##SW1
+
+ip arp inspection vlan 1
+
+ip arp inspection validate dst-mac ip src-mac
+
+int range g0/1-2
+
+ip arp inspection trust
+
+end
+
+show run
+
+show ip arp inspection interfaces
+
+
+- test if pcs can get ips
+
+change the default gateway from static to DHCP
+
+- go to cli
+
+ipconfig
+
+ping R1
+
+ping 192.168.1.1
+
+
+
+
+
+
+

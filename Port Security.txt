@@ -1,0 +1,428 @@
+# Port Security – CCNA Complete Summary Notes
+
+## What is Port Security?
+
+* **Port Security** is a Layer 2 switch security feature.
+* Controls which devices are allowed to connect to a switch port.
+* Prevents unauthorized devices from accessing the network.
+
+---
+
+## Why Use Port Security?
+
+* Stops unknown devices from connecting.
+* Reduces MAC flooding attacks.
+* Increases network security.
+* Limits the number of devices per port.
+
+---
+
+## How It Works
+
+The switch learns or is configured with allowed MAC addresses.
+
+Example:
+
+```text
+Fa0/1
+Allowed MAC: 00:11:22:33:44:55
+```
+
+If another device connects:
+
+```text
+66:77:88:99:AA:BB
+```
+
+A security violation occurs.
+
+---
+
+## Maximum MAC Addresses
+
+Limit the number of devices allowed on a port.
+
+Example:
+
+```cisco
+switchport port-security maximum 1
+```
+
+Only one MAC address can use the port.
+
+---
+
+## Types of Secure MAC Addresses
+
+### 1. Static Secure MAC
+
+Manually configured.
+
+```cisco
+switchport port-security mac-address 0011.2233.4455
+```
+
+---
+
+### 2. Dynamic Secure MAC
+
+Learned automatically.
+
+* Stored in RAM.
+* Lost after reboot.
+
+---
+
+### 3. Sticky Secure MAC
+
+Learned automatically and added to the running configuration.
+
+```cisco
+switchport port-security mac-address sticky
+```
+
+Most commonly tested in CCNA.
+
+---
+
+## Violation Modes
+
+### 1. Protect
+
+* Drops unauthorized traffic.
+* No log message.
+* Port stays up.
+
+```text
+Unauthorized Device
+        ↓
+Traffic Dropped
+```
+
+---
+
+### 2. Restrict
+
+* Drops unauthorized traffic.
+* Generates logs/counters.
+* Port stays up.
+
+```text
+Unauthorized Device
+        ↓
+Traffic Dropped + Log Generated
+```
+
+---
+
+### 3. Shutdown (Default)
+
+* Port enters **err-disabled** state.
+* Traffic stops completely.
+* Most secure option.
+
+```text
+Violation
+    ↓
+Port Disabled
+```
+
+---
+
+## Port Security Configuration
+
+### Enable Port Security
+
+```cisco
+interface fa0/1
+ switchport mode access
+ switchport port-security
+```
+
+---
+
+### Set Maximum MAC Addresses
+
+```cisco
+switchport port-security maximum 1
+```
+
+---
+
+### Enable Sticky Learning
+
+```cisco
+switchport port-security mac-address sticky
+```
+
+---
+
+### Set Violation Mode
+
+```cisco
+switchport port-security violation shutdown
+```
+
+---
+
+## Verification Commands
+
+Show port security:
+
+```cisco
+show port-security
+```
+
+Show interface details:
+
+```cisco
+show port-security interface fa0/1
+```
+
+Show learned MAC addresses:
+
+```cisco
+show port-security address
+```
+
+---
+
+## Recovering from Err-Disabled
+
+After a shutdown violation:
+
+```cisco
+interface fa0/1
+ shutdown
+ no shutdown
+```
+
+---
+
+## Port Security Example
+
+```text
+Switch Port Fa0/1
+
+Maximum MACs = 1
+Allowed MAC = PC1
+
+PC1 Connects
+✓ Allowed
+
+PC2 Connects
+✗ Violation
+```
+
+---
+
+## Requirements
+
+Port Security works only on:
+
+```text
+Access Ports
+```
+
+Not on:
+
+```text
+Trunk Ports
+```
+
+(For CCNA, remember: configure it on access ports.)
+
+---
+
+## CCNA Exam Tips
+
+### Common Commands
+
+```cisco
+switchport port-security
+switchport port-security maximum 1
+switchport port-security mac-address sticky
+switchport port-security violation shutdown
+```
+
+### Violation Modes
+
+| Mode     | Drops Traffic | Log Message | Port Disabled |
+| -------- | ------------- | ----------- | ------------- |
+| Protect  | Yes           | No          | No            |
+| Restrict | Yes           | Yes         | No            |
+| Shutdown | Yes           | Yes         | Yes           |
+
+### MAC Address Types
+
+| Type    | Saved After Reboot        |
+| ------- | ------------------------- |
+| Dynamic | No                        |
+| Static  | Yes                       |
+| Sticky  | Yes (after saving config) |
+
+---
+
+## Most Important Exam Facts
+
+```text
+Sticky = Learns MAC Automatically
+Shutdown = Default Violation Mode
+Maximum = Limits Number of Devices
+Port Security = Layer 2 Security
+```
+
+---
+
+## One-Line Memory Note
+
+**Port Security limits which MAC addresses can use a switch port and can disable the port if an unauthorized device connects.**
+
+
+
+PRACTICAL LAB
+
+1. Configure port security on the following interfaces:
+#SW1 F0/1, F0/2, F0/3#
+Violation mode: Shutdown
+Maximum addresses: 1
+Sticky learning: Disabled
+Aging time: 1 hour
+
+
+## SW1
+
+en
+
+conf t
+
+interface range f0/1-3
+
+- by default the violation mode is shutdown and the maximum number of MAC addresses allowed is 1
+
+- sticky mac address learning is also disabled by default, we dont have to config them
+
+- will set aging time / with the default time of 0 minutes secure mac addresses will nevre age out
+
+
+switchport port-security aging time 60
+
+switchport port-security
+
+- we get an error because the ports are in dynamic auto mode
+
+do show interface f0/1 switchport
+
+- to enable port security we need to manualy config the interface to either switchport ot trunk port
+
+sw mode access
+
+switchport port-security
+
+do show port-sec int f0/1
+
+
+
+#SW2 G0/1#
+Violation mode: Restrict
+Maximum addresses: 4
+Sticky learning: Enabled
+
+
+## SW2
+
+- 4 interfaces will be configured because SW2 will be receiving CDP messages from SW1 so it will learn SW1 Mac address
+
+en
+
+conf t
+
+int g0/1
+
+- the default port security violation mode is shutdown so lets configure restrict mode.
+
+
+switchport port-security violation restrict
+
+switchport port-security maximum 4
+
+switchport port-security mac-address sticky
+
+switchport mode access
+
+switchport port-security
+
+do show port-security int g0/1
+
+- testing sticky learning / ping pc to R1 so that sw1 and 2 can learn their mac addresses
+
+
+## PC1-2-3
+
+ping 10.0.0.254
+
+
+- lets check the config of g0/1 on sw2
+
+do show run
+
+do show mac address-table
+
+do show port-security int f0/1
+
+
+
+
+2. Trigger port security violations on SW1 and SW2 (for example by 
+    connecting another PC) and observe the actions taken by each switch.
+
+
+## SW1
+
+int vlan 1
+
+ip add 10.0.0.10  255.255.255.255.0
+
+no shutdown
+
+
+- if SW1 tries to ping R1 the source mac address will be the mac address of the VLAN 1 SVI
+
+- Sw2 learned the mac address of SW1 g0/1 interface but it doesn't know the MAC address of VLAN 1 SVI
+
+
+do ping 10.0.0.254
+
+
+- SW2 is blocking pings because of the unauthorized source MAC address
+
+
+## SW2
+
+do show port-sec int g0/1
+
+- the port status is still secure-up but the violation counter has beed incremented
+
+
+- a syslog message should be displayed on the console 
+
+
+- lets trigger a violation on sw1 by changing the MAC of PC1
+
+- PC1  config/fastethernet/mac 
+
+- change the mac then ping PC1
+
+ping 10.0.0.254
+
+- go to switch 1 console and the syslog messages have been shown for the f0/1 interface being shutdown
+
+
+- no actual port security related syslog messages
+
+
+do show port-sec int f0/1
+
+- state is shutdown 
+
+- security violation is 1

@@ -197,7 +197,9 @@ int g1/0/1
 
 switchport trunk encapsulation dot1q
 
-sw mode trunk allowed vlan 10,20
+switchport mode trunk
+
+switchport trunk allowed vlan 10,20
 
 
 
@@ -207,7 +209,7 @@ en
 
 conf t
 
-int f0/0
+int f0/0.10
 
 no shutdown
 

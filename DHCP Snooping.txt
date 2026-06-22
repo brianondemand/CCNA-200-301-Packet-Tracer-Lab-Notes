@@ -1,0 +1,453 @@
+# DHCP Snooping – CCNA Complete Summary Notes
+
+## What is DHCP Snooping?
+
+* **DHCP Snooping** is a Layer 2 security feature that protects against **rogue DHCP servers**.
+* It filters DHCP messages and allows only trusted DHCP servers to assign IP addresses.
+* Builds a database of valid DHCP clients.
+
+---
+
+## Why is DHCP Snooping Needed?
+
+### Problem: Rogue DHCP Server
+
+An attacker connects a fake DHCP server:
+
+```text
+PC → Fake DHCP Server
+```
+
+The fake server can provide:
+
+* Wrong IP addresses
+* Wrong default gateway
+* Wrong DNS server
+
+This can lead to:
+
+* Man-in-the-Middle attacks
+* Traffic interception
+* Denial of Service (DoS)
+
+---
+
+## DHCP Snooping Solution
+
+The switch classifies ports as:
+
+### Trusted Ports
+
+* Allowed to send DHCP server messages.
+* Usually connected to:
+
+  * Legitimate DHCP Servers
+  * Uplink switches
+  * Routers
+
+### Untrusted Ports
+
+* Not allowed to send DHCP server messages.
+* Usually connected to end devices.
+
+---
+
+## Trusted vs Untrusted
+
+| Port Type | DHCP Offers Allowed? |
+| --------- | -------------------- |
+| Trusted   | Yes                  |
+| Untrusted | No                   |
+
+Example:
+
+```text
+DHCP Server
+     │
+Trusted Port
+     │
+Switch
+     │
+Untrusted Ports
+     │
+PCs
+```
+
+---
+
+## DHCP Snooping Database
+
+The switch builds a binding table containing:
+
+* MAC Address
+* IP Address
+* VLAN
+* Interface
+* Lease Time
+
+Example:
+
+```text
+MAC                IP Address
+0011.2233.4455     192.168.1.10
+```
+
+---
+
+## DHCP Message Flow
+
+### DORA Process
+
+```text
+Discover
+Offer
+Request
+Acknowledge
+```
+
+DHCP Snooping examines these messages.
+
+---
+
+## Enable DHCP Snooping
+
+### Globally
+
+```cisco
+ip dhcp snooping
+```
+
+---
+
+### Enable for a VLAN
+
+```cisco
+ip dhcp snooping vlan 10
+```
+
+---
+
+### Configure Trusted Port
+
+```cisco
+interface g0/1
+ ip dhcp snooping trust
+```
+
+Usually the port connected to:
+
+* DHCP Server
+* Router
+* Distribution Switch
+
+---
+
+## Verify DHCP Snooping
+
+Show snooping status:
+
+```cisco
+show ip dhcp snooping
+```
+
+Show binding table:
+
+```cisco
+show ip dhcp snooping binding
+```
+
+---
+
+## DHCP Rate Limiting
+
+Protects against DHCP starvation attacks.
+
+Example:
+
+```cisco
+interface fa0/1
+ ip dhcp snooping limit rate 10
+```
+
+Limits DHCP packets per second.
+
+---
+
+## DHCP Starvation Attack
+
+Attacker sends many DHCP requests:
+
+```text
+Attacker
+   ↓
+Thousands of Requests
+   ↓
+DHCP Pool Exhausted
+```
+
+Result:
+
+```text
+Legitimate Users
+      ↓
+Cannot Get IP Addresses
+```
+
+DHCP Snooping rate limiting helps prevent this.
+
+---
+
+## Benefits of DHCP Snooping
+
+* Blocks rogue DHCP servers.
+* Prevents DHCP spoofing.
+* Prevents DHCP starvation attacks.
+* Creates a trusted client database.
+* Improves Layer 2 security.
+
+---
+
+## Relationship to Other Security Features
+
+The DHCP Snooping binding table is used by:
+
+### Dynamic ARP Inspection (DAI)
+
+Protects against ARP spoofing.
+
+### IP Source Guard
+
+Prevents IP spoofing.
+
+```text
+DHCP Snooping
+      ↓
+Creates Binding Table
+      ↓
+DAI and IP Source Guard Use It
+```
+
+---
+
+## CCNA Exam Tips
+
+### Remember
+
+```text
+Trusted Port = Can Send DHCP Offers
+Untrusted Port = Cannot Send DHCP Offers
+```
+
+### Main Purpose
+
+```text
+Block Rogue DHCP Servers
+```
+
+### Key Commands
+
+```cisco
+ip dhcp snooping
+
+ip dhcp snooping vlan 10
+
+ip dhcp snooping trust
+```
+
+### Verification
+
+```cisco
+show ip dhcp snooping
+
+show ip dhcp snooping binding
+```
+
+---
+
+## Common Exam Questions
+
+### Which ports should be trusted?
+
+Ports connected to:
+
+* Legitimate DHCP Servers
+* Routers
+* Uplink Switches
+
+---
+
+### Which ports should be untrusted?
+
+Ports connected to:
+
+* PCs
+* Printers
+* End Devices
+
+---
+
+### What database does DHCP Snooping create?
+
+```text
+DHCP Snooping Binding Table
+```
+
+Contains:
+
+* MAC Address
+* IP Address
+* VLAN
+* Interface
+* Lease Time
+
+---
+
+## DHCP Snooping at a Glance
+
+| Feature        | Purpose                          |
+| -------------- | -------------------------------- |
+| Trusted Port   | Allows DHCP Server messages      |
+| Untrusted Port | Blocks DHCP Server messages      |
+| Binding Table  | Stores valid DHCP leases         |
+| Rate Limiting  | Prevents DHCP starvation attacks |
+
+---
+
+## One-Line Memory Note
+
+**DHCP Snooping protects the network from rogue DHCP servers by allowing DHCP responses only on trusted ports and building a database of valid DHCP clients.**
+
+
+## PRACTICAL LAB
+
+1. Configure R1 as a DHCP server.
+    Exclude 192.168.1.1 - 192.168.1.9 from the pool
+    Default gateway: R1
+
+##R1
+
+en
+
+conf t
+
+ip dhcp excluded-address 192.168.1.1  192.168.1.9
+
+ip dhcp pool POOL1
+
+network 192.168.1.0   255.255.255.0
+
+default-router 192.168.1.1 
+
+
+2. Configure DHCP snooping on SW1 and SW2.
+    Configure the uplink interfaces as trusted ports.
+
+
+##SW1
+
+en
+
+conf t
+
+ip dhcp snooping
+
+- we need to tell DCHP which vlan to enable snooping on
+
+ip dhcp snooping vlan 1
+
+- all interfaces are untrusted DHCP will not work properly
+
+int g0/2
+
+ip dhcp snooping trust
+
+exit
+
+
+## SW2
+
+en
+
+conf t
+
+ip dhcp snooping
+
+ip dhcp snooping vlan 1
+
+int g0/1
+
+ip dhcp snooping trust
+
+exit
+
+
+
+3. Use IPCONFIG /RENEW on PC1 to get an IP address.
+    Does it work?  Why or why not?
+
+
+## PC1
+
+ipconfig /renew
+
+- its going to fail
+
+- the correct interfaces are configured as trusted and PC1 isn't doing MAC address spoofing
+
+
+
+
+
+4. If it doesn't work, make the necessary configuration change to fix it.
+
+
+
+
+- lets check using simulation mode
+
+ipconfig /renew
+
+- foward until the messages gets to SW2 
+
+- lets check the message received by SW1 
+
+- down in the PDU Details you can see the DHCP Agent Infomation
+
+- SW1 received it on an trusted port so it discarded it
+
+
+- go to realtime mode and fix that
+
+
+##SW1
+
+no ip dhcp snooping information option
+
+##SW2
+
+no ip dhcp snooping information option
+
+
+
+##PC1
+
+ipconfig /renew
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,481 @@
+# STP & HSRP Synchronization – CCNA Complete Summary Notes
+
+## What is STP & HSRP Synchronization?
+
+* A network design technique where **STP (Spanning Tree Protocol)** and **HSRP (Hot Standby Router Protocol)** are configured to use the same preferred path.
+* Prevents inefficient traffic flow and improves network performance.
+* Commonly used in redundant Layer 2 and Layer 3 networks.
+
+---
+
+## Why is Synchronization Needed?
+
+Without synchronization:
+
+```text
+PC
+ │
+SW1 (HSRP Active)
+ │
+SW2 (STP Root)
+ │
+Router
+```
+
+Traffic may take unnecessary paths, causing:
+
+* Increased latency
+* Inefficient bandwidth usage
+* Suboptimal routing
+
+---
+
+## Goal
+
+Make the:
+
+```text
+HSRP Active Router
+        =
+STP Root Bridge
+```
+
+for the same VLAN.
+
+This ensures traffic follows the shortest path.
+
+---
+
+## Review: STP
+
+### Purpose
+
+* Prevents Layer 2 loops.
+* Elects a **Root Bridge**.
+
+### Root Bridge
+
+The switch with the lowest:
+
+```text
+Bridge ID (BID)
+```
+
+becomes the Root Bridge.
+
+All traffic flows toward the root.
+
+---
+
+## Review: HSRP
+
+### Purpose
+
+* Provides default gateway redundancy.
+* Uses a virtual IP address.
+
+### Roles
+
+#### Active Router
+
+```text
+Forwards Traffic
+```
+
+#### Standby Router
+
+```text
+Waits to Take Over
+```
+
+if the Active router fails.
+
+---
+
+## Example Topology
+
+```text
+        SW1
+       /   \
+      /     \
+    SW2-----SW3
+
+HSRP Active = SW2
+STP Root    = SW3
+```
+
+Problem:
+
+```text
+Traffic enters SW2
+      ↓
+Must travel to SW3
+      ↓
+Then forwarded
+```
+
+Creates an inefficient path.
+
+---
+
+## Proper Synchronization
+
+### VLAN 10
+
+```text
+SW2 = STP Root
+SW2 = HSRP Active
+```
+
+### VLAN 20
+
+```text
+SW3 = STP Root
+SW3 = HSRP Active
+```
+
+This creates load balancing and efficient traffic flow.
+
+---
+
+## Load Balancing Example
+
+### VLAN 10
+
+```text
+SW2 = Root + Active
+```
+
+### VLAN 20
+
+```text
+SW3 = Root + Active
+```
+
+Result:
+
+```text
+VLAN 10 Traffic → SW2
+VLAN 20 Traffic → SW3
+```
+
+Traffic is distributed across both switches.
+
+---
+
+## STP Configuration Example
+
+Make SW2 root for VLAN 10:
+
+```cisco
+spanning-tree vlan 10 root primary
+```
+
+Make SW3 root for VLAN 20:
+
+```cisco
+spanning-tree vlan 20 root primary
+```
+
+---
+
+## HSRP Configuration Example
+
+### SW2
+
+```cisco
+standby 10 ip 192.168.10.254
+standby 10 priority 110
+standby 10 preempt
+```
+
+Higher priority wins.
+
+---
+
+### SW3
+
+```cisco
+standby 10 ip 192.168.10.254
+standby 10 priority 100
+```
+
+SW2 becomes Active.
+
+---
+
+## HSRP Priorities
+
+Default:
+
+```text
+100
+```
+
+Higher value wins:
+
+```text
+110 > 100
+```
+
+---
+
+## Preemption
+
+Allows a higher-priority router to reclaim the Active role.
+
+```cisco
+standby 10 preempt
+```
+
+Without preempt:
+
+```text
+Higher Priority Router Returns
+          ↓
+Does NOT Become Active
+```
+
+---
+
+## Verification Commands
+
+### STP
+
+```cisco
+show spanning-tree
+```
+
+Show root bridge:
+
+```cisco
+show spanning-tree vlan 10
+```
+
+---
+
+### HSRP
+
+```cisco
+show standby brief
+```
+
+---
+
+## Benefits of STP-HSRP Synchronization
+
+* Efficient traffic flow.
+* Reduced latency.
+* Better use of redundant links.
+* Faster convergence.
+* Easier troubleshooting.
+
+---
+
+## CCNA Exam Tips
+
+### STP
+
+```text
+Purpose = Prevent Loops
+Elects = Root Bridge
+```
+
+### HSRP
+
+```text
+Purpose = Gateway Redundancy
+Roles = Active / Standby
+```
+
+### Synchronization Rule
+
+```text
+HSRP Active Router
+        =
+STP Root Bridge
+```
+
+for the same VLAN.
+
+---
+
+## Common Exam Question
+
+### Why synchronize STP and HSRP?
+
+To ensure traffic takes the most efficient path and does not cross unnecessary links.
+
+---
+
+## Quick Comparison
+
+| Feature   | STP           | HSRP               |
+| --------- | ------------- | ------------------ |
+| Layer     | 2             | 3                  |
+| Purpose   | Prevent Loops | Gateway Redundancy |
+| Main Role | Root Bridge   | Active Router      |
+
+---
+
+## Most Important Exam Facts
+
+```text
+STP = Prevent Loops
+
+HSRP = Default Gateway Redundancy
+
+STP Root and HSRP Active should be the same switch for a VLAN
+
+Use different roots/actives on different VLANs for load balancing
+```
+
+---
+
+## One-Line Memory Note
+
+**STP-HSRP synchronization aligns the STP Root Bridge with the HSRP Active Router so traffic follows the most efficient path through the network.**
+
+
+### PRACTICAL LAB
+
+Configure HSRP on DSW1/DSW2, and ensure sychronization with STP.
+In VLAN 10:
+-DSW1 is HSRP active/STP root
+-DSW2 is HSRP standby/STP secondary root
+
+In VLAN 20:
+-DSW2 is HSRP active/STP root
+-DSW1 is HSRP standby/STP secondary root
+
+
+
+- this applies regardlessof what first hop redundancy protocol youre using 
+
+- hsrp and stp synchronization means that the hsrp active should be the stp root bridge and hstp standby should be the stp secondary root bridge
+
+
+- the hsrp active and stp root should be synchronized aligned to ensure the traffic from the end hosts follows the most direct path to the default gateway
+
+- traffic will follow the most efficient path
+
+
+### DSW1
+
+- check the current state
+
+en
+
+show standby brief
+
+- hsrp is not configured lets check spanning tree
+
+show spanning-tree vlan 10 
+
+- GI 1/0/3 is the root port meaning DSW2 is the root bridge
+
+conf t
+
+spanning-tree vlan 10 root primary
+
+spanning-tree vlan 20 root secondary
+
+do show span vlan 10
+
+do show span vlan 20
+
+- since we have not config DSW2, DSW1 priority lower than DWS2 so DSW1 because the root for VLAN 20
+
+
+- lets config HSRP on DSW1 for the VLAN10 SVI
+
+int vlan 10
+
+standby version 2
+
+standby 10 ip 10.0.10.254
+
+standby 10 priority 105
+
+standby 10 preempt
+
+
+int vlan 20
+
+standby version 2
+
+standby 20 ip 10.0.20.254
+
+standby 20 priority 95
+
+standby 20 preempt
+
+end
+
+
+## DSW2
+
+conf t
+
+spanning-tree vlan 10 root secondary
+
+spanning-tree vlan 20 root primary
+
+do show span vlan 20
+
+- check if its the the root bridge
+
+do show span vlan 10
+
+
+int vlan 10
+
+standby version 2
+
+standby 10 ip 10.0.10.254
+
+standby 10 priority 95
+
+standby 10 preempt
+
+
+int vlan 20
+
+standby version 2
+
+standby 20 ip 10.0.20.254
+
+standby 20 priority 105
+
+standby 20 preempt
+
+end
+
+
+- DSW1 should be active in VLAN 10 and standby in VLAN 20
+
+- DSW2 should be active in VLAN 20 and standby in VLAN 10
+
+
+show standby brief
+
+- also check on DSW1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
